@@ -1,0 +1,34 @@
+{
+  "name": "export-transactions",
+  "version": "1.0.0",
+  "directus:extension": {
+    "type": "bundle",
+    "path": {
+      "app": "dist/app.js",
+      "api": "dist/api.js"
+    },
+    "entries": [
+      {
+        "type": "endpoint",
+        "name": "export-transactions",
+        "source": { "api": "src/api/index.js" }
+      },
+      {
+        "type": "module",
+        "name": "export-transactions",
+        "source": { "app": "src/app/index.js" }
+      }
+    ],
+    "host": "^11.0.0"
+  },
+  "scripts": {
+    "build": "directus-extension build",
+    "dev": "directus-extension build --watch"
+  },
+  "devDependencies": {
+    "@directus/extensions-sdk": "^12.0.0"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  }
+}
