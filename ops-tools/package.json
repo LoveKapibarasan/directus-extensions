@@ -1,0 +1,26 @@
+{
+  "name": "citrineos-ops-tools",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "build:extension": "esbuild src/extension/panel.tsx --bundle --format=iife --outfile=public/extension-bundle.js --loader:.tsx=tsx"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "next": "15.2.8",
+    "next-auth": "4.24.13",
+    "react": "19.1.4",
+    "react-dom": "19.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "esbuild": "^0.28.1",
+    "playwright": "^1.62.0",
+    "typescript": "^5"
+  }
+}
