@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   Banknote,
   CreditCard,
-  Download,
+  ExternalLink,
   FileSpreadsheet,
   MapPin,
   Percent,
@@ -65,10 +65,21 @@ const groups: NavGroup[] = [
         label: 'Export Transactions',
         icon: <FileSpreadsheet className={size} />,
       },
-      { href: '/payments', label: 'Legacy Payments Viewer', icon: <Download className={size} /> },
     ],
   },
 ];
+
+// External link to Operator-UI. URL comes from an env var rather than being
+// hardcoded, so this keeps working if the Operator-UI domain (or the whole
+// CitrineOS-side deployment it points at) changes later — only the env var
+// needs updating, not this component.
+const operatorUiUrl = process.env.NEXT_PUBLIC_OPERATOR_UI_URL;
+if (operatorUiUrl) {
+  groups.push({
+    label: 'External',
+    items: [{ href: operatorUiUrl, label: 'Operator UI', icon: <ExternalLink className={size} /> }],
+  });
+}
 
 export function MainMenu() {
   const pathname = usePathname();
@@ -87,18 +98,27 @@ export function MainMenu() {
             </div>
             <div className="space-y-0.5">
               {group.items.map((item) => {
-                const active = pathname?.startsWith(item.href);
-                return (
-                  <Link
+                const isExternal = item.href.startsWith('http');
+                const active = !isExternal && pathname?.startsWith(item.href);
+                const linkClassName = cn(
+                  'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+                  active
+                    ? 'bg-accent text-accent-foreground font-medium'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                );
+                return isExternal ? (
+                  <a
                     key={item.href}
                     href={item.href}
-                    className={cn(
-                      'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-                      active
-                        ? 'bg-accent text-accent-foreground font-medium'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClassName}
                   >
+                    {item.icon}
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link key={item.href} href={item.href} className={linkClassName}>
                     {item.icon}
                     {item.label}
                   </Link>

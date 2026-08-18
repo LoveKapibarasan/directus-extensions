@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorized } from '@/lib/auth';
 
-// Auth-gated proxy in front of Hasura. This is the one place
-// HASURA_ADMIN_SECRET is used — it never reaches the browser. Refine's
-// dataProvider (see src/lib/providers/data-provider.ts) is pointed at this
-// route instead of talking to Hasura directly.
+// Auth-gated proxy in front of Hasura for Refine's dataProvider (see
+// src/lib/providers/data-provider.ts). Forwards the request body as-is,
+// since Refine constructs its own queries — this is the one place
+// HASURA_ADMIN_SECRET is used for those. It never reaches the browser.
+// (Fixed, hand-written server-side queries, e.g. the transactions export,
+// use the lower-level src/lib/server/hasura.ts helper directly instead.)
 export async function POST(req: NextRequest) {
   if (!(await isAuthorized(req))) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
