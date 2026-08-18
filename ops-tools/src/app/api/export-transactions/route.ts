@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
 import { isAuthorized } from '@/lib/auth';
-import { hasuraQuery } from '@/lib/hasura';
+import { hasuraQuery } from '@/lib/server/hasura';
 
 const QUERY = `
   query ($from: timestamptz!, $to: timestamptz!) {
