@@ -2,25 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import { PAYMENT_TABLES } from '@/lib/paymentTables';
-import { apiUrl, authHeaders, useEmbedToken } from '@/lib/embed-auth';
 
 export default function PaymentsPage() {
   const [table, setTable] = useState<string>(PAYMENT_TABLES[0]);
   const [fields, setFields] = useState<string[]>([]);
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const token = useEmbedToken();
 
   useEffect(() => {
     setLoading(true);
-    fetch(apiUrl(`/api/payments?table=${table}`), { headers: authHeaders(token) })
+    fetch(`/api/payments?table=${table}`)
       .then((r) => r.json())
       .then((d) => {
         setFields(d.fields || []);
         setRows(d.rows || []);
       })
       .finally(() => setLoading(false));
-  }, [table, token]);
+  }, [table]);
 
   return (
     <div>

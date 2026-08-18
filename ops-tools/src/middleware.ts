@@ -1,32 +1,41 @@
 import { getToken } from 'next-auth/jwt';
-import { NextResponse, type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-const PUBLIC_PATH_SEGMENTS = ['/api/auth', '/_next', '/favicon.ico', '/extension-bundle.js'];
+/**
+ * Server-side authentication middleware.
+ *
+ * Uses next-auth/jwt getToken() to validate the encrypted session cookie on
+ * every matched request before any page renders or server action executes.
+ * Unauthenticated requests are redirected to /login. Requests whose token
+ * refresh failed (Keycloak session ended) are redirected with an error param.
+ *
+ * Protected: all routes except /api/auth/**, /_next/**, and static assets.
+ */
+export async function middleware(request: NextRequest) {
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
 
-export async function middleware(req: NextRequest) {
-  const { pathname, searchParams } = req.nextUrl;
-  if (PUBLIC_PATH_SEGMENTS.some((p) => pathname.includes(p))) {
-    return NextResponse.next();
+  if (!token) {
+    const signInUrl = new URL('/api/auth/signin', request.url);
+    signInUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    return NextResponse.redirect(signInUrl);
   }
 
-  // Embedded pages render unauthenticated and receive their token via
-  // postMessage from the host; actual data access is still gated per-request
-  // in each API route (see src/lib/auth.ts), so this is not a security bypass.
-  if (searchParams.get('embed') === '1') {
-    return NextResponse.next();
+  if (token.error === 'RefreshAccessTokenError') {
+    const signInUrl = new URL('/api/auth/signin', request.url);
+    signInUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    signInUrl.searchParams.set('error', 'SessionExpired');
+    return NextResponse.redirect(signInUrl);
   }
 
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  if (token) {
-    return NextResponse.next();
-  }
-
-  const signInUrl = req.nextUrl.clone();
-  signInUrl.pathname = '/api/auth/signin';
-  signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
-  return NextResponse.redirect(signInUrl);
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/:path*'],
+  matcher: [
+    '/((?!api/auth|_next/static|_next/image|favicon\\.ico|[^/]+\\.[^/]+$).*)',
+  ],
 };

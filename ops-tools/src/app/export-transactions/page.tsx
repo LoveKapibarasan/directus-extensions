@@ -1,22 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { apiUrl, authHeaders, useEmbedToken } from '@/lib/embed-auth';
 
 export default function ExportTransactionsPage() {
   const today = new Date().toISOString().slice(0, 10);
   const [from, setFrom] = useState(today);
   const [to, setTo] = useState(today);
   const [downloading, setDownloading] = useState(false);
-  const token = useEmbedToken();
 
   const download = async () => {
     setDownloading(true);
     try {
-      const res = await fetch(
-        apiUrl(`/api/export-transactions?from=${from}&to=${to}`),
-        { headers: authHeaders(token) },
-      );
+      const res = await fetch(`/api/export-transactions?from=${from}&to=${to}`);
       if (!res.ok) throw new Error(await res.text());
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);

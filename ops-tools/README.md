@@ -1,28 +1,35 @@
 # ops-tools
 
-Operator-facing tools (transaction export, read/write payments DB viewer) built as
-an extension for `citrineos-operator-ui`'s generic extension slot system
-(`public/extensions/*.json` + `/extensions/[id]`), rather than a Directus extension
-like the other tools in this repo.
+Operator-facing tools (transaction export, read/write payments DB viewer) for CitrineOS.
+
+Runs as a standalone Next.js app with its own Keycloak-backed login — not embedded
+in Operator-UI or Directus. SSO with citrineos-operator-ui works because both apps
+authenticate against the same Keycloak realm (`AI-Charge-Technologies`) and client
+(`internal`): once a user has an active Keycloak session from one app, navigating
+to the other doesn't prompt for credentials again.
 
 ## Layout
 
-- `src/app/**` — standalone Next.js app (works on its own: login, `/export-transactions`, `/payments`)
-- `src/extension/panel.tsx` — the same features re-implemented as a plain React component
-  (no Next.js, no bundled React/ReactDOM — uses the host's `window.React`/`window.ReactDOM`),
-  built separately via `npm run build:extension` into `public/extension-bundle.js`.
-  This is what Operator-UI actually loads and mounts.
-- `src/lib/auth.ts` — accepts either a normal session cookie (standalone use) or a
-  short-lived Bearer token minted by Operator-UI's `/api/extensions/token`
-  (embedded use).
+- `src/app/**` — the app: login (via NextAuth's built-in `/api/auth/signin`),
+  `/export-transactions`, `/payments`
+- `src/lib/auth.ts` — server-side session check used by the API routes
+- `src/middleware.ts` — redirects unauthenticated requests to sign-in and forces
+  re-login if Keycloak token refresh fails
+
+## Run
+
+```
+pnpm install
+pnpm run dev   # http://localhost:3100
+```
+
+See `.env.local.example` for the full variable list. `HASURA_ADMIN_SECRET` and
+`NEXT_PUBLIC_API_URL` point at the same Hasura instance/DB citrineos-operator-ui
+uses. `KEYCLOAK_CLIENT_SECRET` is the `internal` client's secret in Keycloak
+realm `AI-Charge-Technologies` — same client Operator-UI uses.
 
 ## Deploy
 
-1. `npm install && npm run build && npm run build:extension`
-2. Run it (`npm start`) reachable at whatever `internalUrl` you put in Operator-UI's
-   `public/extensions/ops-tools.json` manifest.
-3. `NEXTAUTH_SECRET` (and `HASURA_ADMIN_SECRET`, `NEXT_PUBLIC_API_URL`) must match
-   citrineos-operator-ui's own values — this is what lets Operator-UI's proxy and
-   token handoff work without a second login.
-
-See `.env.local.example` for the full variable list.
+1. `pnpm install && pnpm run build`
+2. `pnpm run start`, reachable at whatever domain you register as a redirect URI
+   on the `internal` Keycloak client (`{domain}/api/auth/callback/keycloak`)
