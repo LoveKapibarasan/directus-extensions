@@ -4,14 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Banknote,
+  Building2,
   CreditCard,
   ExternalLink,
   FileSpreadsheet,
+  IdCard,
   MapPin,
   Percent,
-  Building2,
+  Plug,
   Users,
   Wallet,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@lib/utils/cn';
 
@@ -31,7 +34,11 @@ const size = 'size-4';
 const groups: NavGroup[] = [
   {
     label: 'Locations',
-    items: [{ href: '/locations', label: 'Locations', icon: <MapPin className={size} /> }],
+    items: [
+      { href: '/locations', label: 'Locations', icon: <MapPin className={size} /> },
+      { href: '/evses', label: 'EVSEs', icon: <Zap className={size} /> },
+      { href: '/connectors', label: 'Connectors', icon: <Plug className={size} /> },
+    ],
   },
   {
     label: 'Tariffs',
@@ -41,6 +48,11 @@ const groups: NavGroup[] = [
     label: 'Payments',
     items: [
       { href: '/checkouts', label: 'Checkouts', icon: <CreditCard className={size} /> },
+      {
+        href: '/meter-value-history',
+        label: 'Meter Value History',
+        icon: <Zap className={size} />,
+      },
     ],
   },
   {
@@ -51,11 +63,20 @@ const groups: NavGroup[] = [
     label: 'Subscriptions',
     items: [
       { href: '/subscription-plans', label: 'Plans', icon: <Wallet className={size} /> },
+      {
+        href: '/rfid-subscriptions',
+        label: 'RFID Subscriptions',
+        icon: <IdCard className={size} />,
+      },
+      { href: '/rfid-cards', label: 'RFID Cards', icon: <IdCard className={size} /> },
     ],
   },
   {
     label: 'Operators',
-    items: [{ href: '/operators', label: 'Operators', icon: <Building2 className={size} /> }],
+    items: [
+      { href: '/operators', label: 'Operators', icon: <Building2 className={size} /> },
+      { href: '/operator-infos', label: 'Operator Infos', icon: <Building2 className={size} /> },
+    ],
   },
   {
     label: 'Tools',

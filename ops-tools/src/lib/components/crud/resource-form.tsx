@@ -22,13 +22,15 @@ import { Label } from '@lib/components/ui/label';
 export interface ResourceFormField {
   name: string;
   label: string;
-  type?: 'text' | 'number' | 'datetime-local' | 'checkbox' | 'relation';
+  type?: 'text' | 'number' | 'datetime-local' | 'checkbox' | 'relation' | 'select';
   // For type: 'relation' — renders a searchable select backed by another resource.
   relation?: {
     resource: string;
     optionLabel: string;
     optionValue?: string;
   };
+  // For type: 'select' — a fixed set of options (e.g. a DB enum column).
+  options?: { label: string; value: string }[];
 }
 
 interface ResourceFormProps {
@@ -71,6 +73,29 @@ function RelationField({
           <SelectContent>
             {options.map((o) => (
               <SelectItem key={String(o.value)} value={String(o.value)}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    />
+  );
+}
+
+function StaticSelectField({ field, control }: { field: ResourceFormField; control: any }) {
+  return (
+    <Controller
+      name={field.name}
+      control={control}
+      render={({ field: cf }) => (
+        <Select value={cf.value ?? undefined} onValueChange={cf.onChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select..." />
+          </SelectTrigger>
+          <SelectContent>
+            {(field.options ?? []).map((o) => (
+              <SelectItem key={o.value} value={o.value}>
                 {o.label}
               </SelectItem>
             ))}
@@ -176,6 +201,7 @@ export function ResourceForm({ resource, id, schema, fields, basePath, title }: 
               <div key={f.name} className="grid gap-2">
                 <Label htmlFor={f.name}>{f.label}</Label>
                 {f.type === 'relation' && <RelationField field={f} control={control} />}
+                {f.type === 'select' && <StaticSelectField field={f} control={control} />}
                 {f.type === 'checkbox' && (
                   <Controller
                     name={f.name}
