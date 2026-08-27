@@ -28,6 +28,30 @@ See `.env.local.example` for the full variable list. `HASURA_ADMIN_SECRET` and
 uses. `KEYCLOAK_CLIENT_SECRET` is the `internal` client's secret in Keycloak
 realm `AI-Charge-Technologies` — same client Operator-UI uses.
 
+## i18n
+
+UI strings are looked up from `src/lib/i18n/translations.ts` (`en` and `ja`)
+through the `useTranslation()` hook from `src/lib/i18n/locale-provider.tsx`.
+The selected locale is kept in `localStorage` and picked with the language
+switcher in the header. To translate a new string, add its key to both
+locales in `translations.ts` and call `t('your.key')` from a client
+component under `<LocaleProvider>` (mounted in `src/lib/providers/index.tsx`).
+
+## E2E tests
+
+```
+pnpm install
+pnpm exec playwright install --with-deps chromium   # first run only
+pnpm run test:e2e
+```
+
+Tests live in `e2e/` and run against the `generic` auth provider (a
+hardcoded admin login, no Keycloak needed) — see `playwright.config.ts` for
+the env it sets. `playwright test` builds and starts the app itself
+(`webServer`), so no server needs to be running first. Use
+`pnpm run test:e2e:ui` for Playwright's interactive UI mode while writing
+tests.
+
 ## Deploy
 
 1. `pnpm install && pnpm run build`

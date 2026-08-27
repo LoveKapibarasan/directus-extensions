@@ -17,15 +17,17 @@ import {
   Zap,
 } from 'lucide-react';
 import { cn } from '@lib/utils/cn';
+import { useTranslation } from '@lib/i18n/locale-provider';
+import type { TranslationKey } from '@lib/i18n/translations';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: TranslationKey;
   icon: React.ReactNode;
 }
 
 interface NavGroup {
-  label: string;
+  groupKey: TranslationKey;
   items: NavItem[];
 }
 
@@ -33,57 +35,57 @@ const size = 'size-4';
 
 const groups: NavGroup[] = [
   {
-    label: 'Locations',
+    groupKey: 'group.locations',
     items: [
-      { href: '/locations', label: 'Locations', icon: <MapPin className={size} /> },
-      { href: '/evses', label: 'EVSEs', icon: <Zap className={size} /> },
-      { href: '/connectors', label: 'Connectors', icon: <Plug className={size} /> },
+      { href: '/locations', labelKey: 'nav.locations', icon: <MapPin className={size} /> },
+      { href: '/evses', labelKey: 'nav.evses', icon: <Zap className={size} /> },
+      { href: '/connectors', labelKey: 'nav.connectors', icon: <Plug className={size} /> },
     ],
   },
   {
-    label: 'Tariffs',
-    items: [{ href: '/tariffs', label: 'Tariffs', icon: <Percent className={size} /> }],
+    groupKey: 'group.tariffs',
+    items: [{ href: '/tariffs', labelKey: 'nav.tariffs', icon: <Percent className={size} /> }],
   },
   {
-    label: 'Payments',
+    groupKey: 'group.payments',
     items: [
-      { href: '/checkouts', label: 'Checkouts', icon: <CreditCard className={size} /> },
+      { href: '/checkouts', labelKey: 'nav.checkouts', icon: <CreditCard className={size} /> },
       {
         href: '/meter-value-history',
-        label: 'Meter Value History',
+        labelKey: 'nav.meterValueHistory',
         icon: <Zap className={size} />,
       },
     ],
   },
   {
-    label: 'Users',
-    items: [{ href: '/users', label: 'Users', icon: <Users className={size} /> }],
+    groupKey: 'group.users',
+    items: [{ href: '/users', labelKey: 'nav.users', icon: <Users className={size} /> }],
   },
   {
-    label: 'Subscriptions',
+    groupKey: 'group.subscriptions',
     items: [
-      { href: '/subscription-plans', label: 'Plans', icon: <Wallet className={size} /> },
+      { href: '/subscription-plans', labelKey: 'nav.subscriptionPlans', icon: <Wallet className={size} /> },
       {
         href: '/rfid-subscriptions',
-        label: 'RFID Subscriptions',
+        labelKey: 'nav.rfidSubscriptions',
         icon: <IdCard className={size} />,
       },
-      { href: '/rfid-cards', label: 'RFID Cards', icon: <IdCard className={size} /> },
+      { href: '/rfid-cards', labelKey: 'nav.rfidCards', icon: <IdCard className={size} /> },
     ],
   },
   {
-    label: 'Operators',
+    groupKey: 'group.operators',
     items: [
-      { href: '/operators', label: 'Operators', icon: <Building2 className={size} /> },
-      { href: '/operator-infos', label: 'Operator Infos', icon: <Building2 className={size} /> },
+      { href: '/operators', labelKey: 'nav.operators', icon: <Building2 className={size} /> },
+      { href: '/operator-infos', labelKey: 'nav.operatorInfos', icon: <Building2 className={size} /> },
     ],
   },
   {
-    label: 'Tools',
+    groupKey: 'group.tools',
     items: [
       {
         href: '/export-transactions',
-        label: 'Export Transactions',
+        labelKey: 'nav.exportTransactions',
         icon: <FileSpreadsheet className={size} />,
       },
     ],
@@ -97,25 +99,26 @@ const groups: NavGroup[] = [
 const operatorUiUrl = process.env.NEXT_PUBLIC_OPERATOR_UI_URL;
 if (operatorUiUrl) {
   groups.push({
-    label: 'External',
-    items: [{ href: operatorUiUrl, label: 'Operator UI', icon: <ExternalLink className={size} /> }],
+    groupKey: 'group.external',
+    items: [{ href: operatorUiUrl, labelKey: 'nav.operatorUi', icon: <ExternalLink className={size} /> }],
   });
 }
 
 export function MainMenu() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   return (
     <aside className="w-60 shrink-0 border-r bg-card min-h-screen p-4 space-y-6">
       <div className="flex items-center gap-2 px-2">
         <Banknote className="size-5 text-primary" />
-        <span className="font-semibold">CitrineOS Ops Tools</span>
+        <span className="font-semibold">{t('app.title')}</span>
       </div>
       <nav className="space-y-5">
         {groups.map((group) => (
-          <div key={group.label}>
+          <div key={group.groupKey}>
             <div className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-              {group.label}
+              {t(group.groupKey)}
             </div>
             <div className="space-y-0.5">
               {group.items.map((item) => {
@@ -136,12 +139,12 @@ export function MainMenu() {
                     className={linkClassName}
                   >
                     {item.icon}
-                    {item.label}
+                    {t(item.labelKey)}
                   </a>
                 ) : (
                   <Link key={item.href} href={item.href} className={linkClassName}>
                     {item.icon}
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 );
               })}
