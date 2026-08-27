@@ -28,6 +28,15 @@ See `.env.local.example` for the full variable list. `HASURA_ADMIN_SECRET` and
 uses. `KEYCLOAK_CLIENT_SECRET` is the `internal` client's secret in Keycloak
 realm `AI-Charge-Technologies` — same client Operator-UI uses.
 
+On boot (`src/instrumentation.ts`), the app checks Hasura's metadata for the
+`payment_*` tables it needs and tracks any that exist in Postgres but aren't
+yet exposed over GraphQL (`src/lib/server/ensure-hasura-tracked.ts`). This
+covers a freshly migrated payments DB that hasn't had its tables tracked in
+the Hasura console yet — otherwise every `payment_*` query 500s with
+`field 'payment_x' not found in type: 'query_root'` until someone tracks
+them by hand. It's a no-op once everything's already tracked, and never
+fails startup — errors are logged and swallowed.
+
 ## i18n
 
 UI strings are looked up from `src/lib/i18n/translations.ts` (`en` and `ja`)
