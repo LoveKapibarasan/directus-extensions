@@ -44,6 +44,9 @@ interface ResourceFormProps {
   fields: ResourceFormField[];
   basePath: string;
   title: string;
+  // Pre-fills a new record's form, e.g. when linking here from a report that
+  // already knows some of the values (the consistency check page).
+  defaultValues?: Record<string, unknown>;
 }
 
 function RelationField({
@@ -146,7 +149,15 @@ function TextField({ field, control }: { field: ResourceFormField; control: any 
   );
 }
 
-export function ResourceForm({ resource, id, schema, fields, basePath, title }: ResourceFormProps) {
+export function ResourceForm({
+  resource,
+  id,
+  schema,
+  fields,
+  basePath,
+  title,
+  defaultValues,
+}: ResourceFormProps) {
   const router = useRouter();
   const gqlFields = Array.from(
     new Set([
@@ -161,6 +172,7 @@ export function ResourceForm({ resource, id, schema, fields, basePath, title }: 
     handleSubmit,
     formState: { errors },
   } = useForm<any>({
+    defaultValues,
     refineCoreProps: {
       resource,
       id,
