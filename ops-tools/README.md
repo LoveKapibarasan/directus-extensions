@@ -28,6 +28,24 @@ See `.env.local.example` for the full variable list. `HASURA_ADMIN_SECRET` and
 uses. `KEYCLOAK_CLIENT_SECRET` is the `internal` client's secret in Keycloak
 realm `AI-Charge-Technologies` — same client Operator-UI uses.
 
+## Google Maps
+
+The Locations page (list and create/edit) has a Google Maps integration
+mirroring citrineos-operator-ui's: a click-to-pick location map on the
+create/edit form (`src/lib/components/map/map-location-picker.tsx`, wired in
+via the `map-point` field type in `src/lib/components/crud/resource-form.tsx`)
+and a map view of all locations on the list page
+(`src/lib/components/map/locations-list-map.tsx`, toggled against the table
+view). Numeric latitude/longitude inputs stay available alongside the map for
+precise entry.
+
+`GOOGLE_MAPS_API_KEY` and `GOOGLE_MAPS_LOCATION_PICKER_MAP_ID` are read
+server-side only and served to the map components through the auth-gated
+`GET /api/maps-config` route — the key is never embedded in the client
+bundle as a `NEXT_PUBLIC_*` var. Without a configured key, both map
+components fall back to a plain message and the manual coordinate inputs
+still work.
+
 On boot (`src/instrumentation.ts`), the app checks Hasura's metadata for the
 `payment_*` tables it needs and tracks any that exist in Postgres but aren't
 yet exposed over GraphQL (`src/lib/server/ensure-hasura-tracked.ts`). This
