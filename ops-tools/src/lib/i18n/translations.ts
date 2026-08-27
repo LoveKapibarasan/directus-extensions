@@ -1,4 +1,4 @@
-export const locales = ['en', 'ja'] as const;
+export const locales = ['en', 'ja', 'de'] as const;
 
 export type Locale = (typeof locales)[number];
 
@@ -64,11 +64,42 @@ const ja: Record<keyof typeof en, string> = {
   'language.label': '言語',
 };
 
+const de: Record<keyof typeof en, string> = {
+  'app.title': 'CitrineOS Ops Tools',
+  'group.locations': 'Standorte',
+  'group.tariffs': 'Tarife',
+  'group.payments': 'Zahlungen',
+  'group.users': 'Benutzer',
+  'group.subscriptions': 'Abonnements',
+  'group.operators': 'Betreiber',
+  'group.tools': 'Werkzeuge',
+  'group.external': 'Extern',
+  'nav.locations': 'Standorte',
+  'nav.evses': 'EVSEs',
+  'nav.connectors': 'Anschlüsse',
+  'nav.tariffs': 'Tarife',
+  'nav.checkouts': 'Zahlungen',
+  'nav.meterValueHistory': 'Zählerstandshistorie',
+  'nav.users': 'Benutzer',
+  'nav.subscriptionPlans': 'Tarifpläne',
+  'nav.rfidSubscriptions': 'RFID-Abonnements',
+  'nav.rfidCards': 'RFID-Karten',
+  'nav.operators': 'Betreiber',
+  'nav.operatorInfos': 'Betreiberinformationen',
+  'nav.exportTransactions': 'Transaktionen exportieren',
+  'nav.operatorUi': 'Operator-UI',
+  'header.signOut': 'Abmelden',
+  'home.title': 'CitrineOS Ops Tools',
+  'home.subtitle': 'Wählen Sie einen Bereich aus der Seitenleiste, um zu beginnen.',
+  'language.label': 'Sprache',
+};
+
 export type TranslationKey = keyof typeof en;
 
-export const translations: Record<Locale, Record<TranslationKey, string>> = { en, ja };
+export const translations: Record<Locale, Record<TranslationKey, string>> = { en, ja, de };
 
 export const localeLabels: Record<Locale, string> = {
   en: 'English',
   ja: '日本語',
+  de: 'Deutsch',
 };

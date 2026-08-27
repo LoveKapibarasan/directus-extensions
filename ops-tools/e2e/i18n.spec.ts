@@ -22,4 +22,20 @@ test.describe('language switching', () => {
     await page.getByRole('option', { name: 'English' }).click();
     await expect(nav.getByRole('link', { name: 'Locations' })).toBeVisible();
   });
+
+  test('switches the UI to German', async ({ page }) => {
+    await login(page);
+
+    const nav = page.locator('aside');
+    await expect(nav.getByRole('link', { name: 'Locations' })).toBeVisible();
+
+    await page.getByTestId('language-switcher').click();
+    await page.getByRole('option', { name: 'Deutsch' }).click();
+
+    await expect(nav.getByRole('link', { name: 'Standorte' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'CitrineOS Ops Tools' })).toBeVisible();
+    await expect(
+      page.getByText('Wählen Sie einen Bereich aus der Seitenleiste, um zu beginnen.'),
+    ).toBeVisible();
+  });
 });
