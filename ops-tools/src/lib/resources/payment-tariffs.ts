@@ -34,33 +34,33 @@ export const paymentTariffSchema = z.object({
 });
 
 export const paymentTariffColumns: ResourceColumn<PaymentTariff>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'currency', header: 'Currency' },
-  { key: 'price_kwh', header: 'Price/kWh' },
-  { key: 'price_minute', header: 'Price/min' },
-  { key: 'tax_rate', header: 'Tax rate' },
+  { key: 'id', header: 'common.id' },
+  { key: 'currency', header: 'tariffs.currencyColumn' },
+  { key: 'price_kwh', header: 'tariffs.priceKwhColumn' },
+  { key: 'price_minute', header: 'tariffs.priceMinuteColumn' },
+  { key: 'tax_rate', header: 'tariffs.taxRate' },
   {
     key: 'authorization_amount',
-    header: 'Auth. amount (major units)',
+    header: 'tariffs.authAmountColumn',
   },
-  { key: 'payment_fee', header: 'Payment fee' },
-  { key: 'stripe_price_id', header: 'Stripe price ID' },
+  { key: 'payment_fee', header: 'tariffs.paymentFee' },
+  { key: 'stripe_price_id', header: 'tariffs.stripePriceId' },
 ];
 
 export const paymentTariffFields: ResourceFormField[] = [
-  { name: 'currency', label: 'Currency (ISO 4217, e.g. EUR)' },
-  { name: 'tax_rate', label: 'Tax rate', type: 'number' },
+  { name: 'currency', label: 'tariffs.currencyLabel' },
+  { name: 'tax_rate', label: 'tariffs.taxRate', type: 'number' },
   {
     name: 'authorization_amount',
-    label: 'Authorization amount (major units, e.g. 50 = EUR 50 — not cents)',
+    label: 'tariffs.authAmountLabel',
     type: 'number',
   },
-  { name: 'payment_fee', label: 'Payment fee', type: 'number' },
-  { name: 'price_kwh', label: 'Price per kWh', type: 'number' },
-  { name: 'price_minute', label: 'Price per minute', type: 'number' },
-  { name: 'price_session', label: 'Price per session', type: 'number' },
-  { name: 'stripe_price_id', label: 'Stripe price ID' },
-  { name: 'block_start_minute', label: 'Block start minute', type: 'number' },
-  { name: 'block_price_minute', label: 'Block price per minute', type: 'number' },
-  { name: 'block_price_limit', label: 'Block price limit', type: 'number' },
+  { name: 'payment_fee', label: 'tariffs.paymentFee', type: 'number' },
+  { name: 'price_kwh', label: 'tariffs.priceKwhLabel', type: 'number' },
+  { name: 'price_minute', label: 'tariffs.priceMinuteLabel', type: 'number' },
+  { name: 'price_session', label: 'tariffs.priceSession', type: 'number' },
+  { name: 'stripe_price_id', label: 'tariffs.stripePriceId' },
+  { name: 'block_start_minute', label: 'tariffs.blockStartMinute', type: 'number' },
+  { name: 'block_price_minute', label: 'tariffs.blockPriceMinute', type: 'number' },
+  { name: 'block_price_limit', label: 'tariffs.blockPriceLimit', type: 'number' },
 ];

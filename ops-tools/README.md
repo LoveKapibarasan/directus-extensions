@@ -57,12 +57,34 @@ fails startup — errors are logged and swallowed.
 
 ## i18n
 
-UI strings are looked up from `src/lib/i18n/translations.ts` (`en` and `ja`)
-through the `useTranslation()` hook from `src/lib/i18n/locale-provider.tsx`.
-The selected locale is kept in `localStorage` and picked with the language
-switcher in the header. To translate a new string, add its key to both
-locales in `translations.ts` and call `t('your.key')` from a client
-component under `<LocaleProvider>` (mounted in `src/lib/providers/index.tsx`).
+UI strings are looked up from `src/lib/i18n/translations.ts` (`en`, `ja`,
+`de`) through the `useTranslation()` hook from
+`src/lib/i18n/locale-provider.tsx` (`t(key)`, or `t(key, {param})` for the
+handful of keys with `{param}` placeholders, e.g. `common.pageOf`). The
+selected locale is kept in `localStorage` and picked with the language
+switcher in the header.
+
+Coverage is meant to be complete — every CRUD screen (`src/lib/resources/*.ts`
+column headers and form field labels, including `select` option labels via
+`labelKey`), the shared table/form chrome (`resource-table.tsx`,
+`resource-form.tsx`), and every other page under `src/app/(authenticated)`
+go through translation keys, not literal strings. `ResourceColumn.header`,
+`ResourceFormField.label`, and `ResourceForm`'s `title` prop are typed as
+`TranslationKey`, so a literal string in any of those won't type-check —
+that's deliberate, to keep new resources/pages from silently reintroducing
+English-only text.
+
+The one deliberate exception: `/consistency-check`'s per-finding messages
+and caveats (`src/lib/server/consistency-check.ts`) are generated
+server-side as full sentences mixing fixed wording with dynamic data (table
+names, DB values) — translating those would mean restructuring the report
+to emit structured data instead of pre-built strings. Only that page's
+static chrome (headings, buttons, table headers, finding-kind badges) is
+localized.
+
+To translate a new string: add the same key to all three locale objects in
+`translations.ts` (TypeScript errors if one is missing) and reference it via
+a `TranslationKey`-typed prop or `t('your.key')`.
 
 ## E2E tests
 

@@ -15,7 +15,7 @@ export default function EditPaymentOperatorPage() {
       schema={paymentOperatorSchema}
       fields={paymentOperatorFields}
       basePath="/operators"
-      title="Edit Operator"
+      title="titles.operators.edit"
     />
   );
 }

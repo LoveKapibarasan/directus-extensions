@@ -26,42 +26,45 @@ export const paymentRfidSubscriptionSchema = z.object({
 });
 
 export const paymentRfidSubscriptionColumns: ResourceColumn<PaymentRfidSubscription>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'user_id', header: 'User ID' },
-  { key: 'plan_id', header: 'Plan ID' },
-  { key: 'status', header: 'Status' },
+  { key: 'id', header: 'common.id' },
+  { key: 'user_id', header: 'rfidSubscriptions.userIdColumn' },
+  { key: 'plan_id', header: 'rfidSubscriptions.planIdColumn' },
+  { key: 'status', header: 'rfidSubscriptions.status' },
   {
     key: 'cancel_at_period_end',
-    header: 'Cancel at period end',
-    render: (r) => (r.cancel_at_period_end ? 'Yes' : 'No'),
+    header: 'rfidSubscriptions.cancelAtPeriodEnd',
+    render: (r, t) => (r.cancel_at_period_end ? t('common.yes') : t('common.no')),
   },
 ];
 
 export const paymentRfidSubscriptionFields: ResourceFormField[] = [
   {
     name: 'user_id',
-    label: 'User',
+    label: 'rfidSubscriptions.userLabel',
     type: 'relation',
     relation: { resource: 'payment_users', optionLabel: 'email' },
   },
   {
     name: 'plan_id',
-    label: 'Plan',
+    label: 'rfidSubscriptions.planLabel',
     type: 'relation',
     relation: { resource: 'payment_subscription_plans', optionLabel: 'name' },
   },
   {
     name: 'status',
-    label: 'Status',
+    label: 'rfidSubscriptions.status',
     type: 'select',
-    options: ['active', 'pending', 'cancelled', 'past_due', 'expired'].map((s) => ({
-      label: s,
-      value: s,
-    })),
+    options: [
+      { labelKey: 'rfidSubscriptions.statusActive', value: 'active' },
+      { labelKey: 'rfidSubscriptions.statusPending', value: 'pending' },
+      { labelKey: 'rfidSubscriptions.statusCancelled', value: 'cancelled' },
+      { labelKey: 'rfidSubscriptions.statusPastDue', value: 'past_due' },
+      { labelKey: 'rfidSubscriptions.statusExpired', value: 'expired' },
+    ],
   },
-  { name: 'cancel_at_period_end', label: 'Cancel at period end', type: 'checkbox' },
-  { name: 'current_period_start', label: 'Current period start', type: 'datetime-local' },
-  { name: 'current_period_end', label: 'Current period end', type: 'datetime-local' },
-  { name: 'stripe_subscription_id', label: 'Stripe subscription ID' },
-  { name: 'stripe_checkout_session_id', label: 'Stripe checkout session ID' },
+  { name: 'cancel_at_period_end', label: 'rfidSubscriptions.cancelAtPeriodEnd', type: 'checkbox' },
+  { name: 'current_period_start', label: 'rfidSubscriptions.currentPeriodStart', type: 'datetime-local' },
+  { name: 'current_period_end', label: 'rfidSubscriptions.currentPeriodEnd', type: 'datetime-local' },
+  { name: 'stripe_subscription_id', label: 'rfidSubscriptions.stripeSubscriptionId' },
+  { name: 'stripe_checkout_session_id', label: 'rfidSubscriptions.stripeCheckoutSessionId' },
 ];

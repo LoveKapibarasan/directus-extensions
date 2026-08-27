@@ -6,8 +6,10 @@ import { Button } from '@lib/components/ui/button';
 import { Input } from '@lib/components/ui/input';
 import { Label } from '@lib/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@lib/components/ui/card';
+import { useTranslation } from '@lib/i18n/locale-provider';
 
 export default function ExportTransactionsPage() {
+  const { t } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
   const [from, setFrom] = useState(today);
   const [to, setTo] = useState(today);
@@ -34,21 +36,21 @@ export default function ExportTransactionsPage() {
     <div className="p-6 max-w-xl">
       <Card>
         <CardHeader>
-          <CardTitle>Export Transactions</CardTitle>
+          <CardTitle>{t('nav.exportTransactions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-end gap-3">
             <div className="grid gap-2">
-              <Label htmlFor="from">From</Label>
+              <Label htmlFor="from">{t('exportTransactions.from')}</Label>
               <Input id="from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="to">To</Label>
+              <Label htmlFor="to">{t('exportTransactions.to')}</Label>
               <Input id="to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
             </div>
             <Button onClick={download} loading={downloading}>
               <Download className="size-4" />
-              Download Excel
+              {t('exportTransactions.download')}
             </Button>
           </div>
         </CardContent>

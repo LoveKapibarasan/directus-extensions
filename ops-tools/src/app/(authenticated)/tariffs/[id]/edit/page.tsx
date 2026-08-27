@@ -15,7 +15,7 @@ export default function EditTariffPage() {
       schema={paymentTariffSchema}
       fields={paymentTariffFields}
       basePath="/tariffs"
-      title="Edit Tariff"
+      title="titles.tariffs.edit"
     />
   );
 }

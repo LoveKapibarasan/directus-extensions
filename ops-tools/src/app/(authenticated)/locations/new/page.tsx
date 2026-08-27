@@ -18,7 +18,7 @@ export default function NewPaymentLocationPage() {
       schema={paymentLocationSchema}
       fields={paymentLocationFields}
       basePath="/locations"
-      title="New Location"
+      title="titles.locations.new"
       defaultValues={defaultValues}
     />
   );

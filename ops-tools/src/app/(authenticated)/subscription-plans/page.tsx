@@ -9,7 +9,7 @@ export default function PaymentSubscriptionPlanListPage() {
       resource="payment_subscription_plans"
       columns={paymentSubscriptionPlanColumns}
       basePath="/subscription-plans"
-      title="Subscription Plans"
+      title="titles.subscriptionPlans.list"
     />
   );
 }

@@ -9,7 +9,7 @@ export default function TariffsPage() {
       resource="payment_tariffs"
       columns={paymentTariffColumns}
       basePath="/tariffs"
-      title="Tariffs"
+      title="nav.tariffs"
     />
   );
 }

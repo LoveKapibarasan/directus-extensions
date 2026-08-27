@@ -22,7 +22,7 @@ export default function NewPaymentEvsePage() {
       schema={paymentEvseSchema}
       fields={paymentEvseFields}
       basePath="/evses"
-      title="New EVSE"
+      title="titles.evses.new"
       defaultValues={defaultValues}
     />
   );

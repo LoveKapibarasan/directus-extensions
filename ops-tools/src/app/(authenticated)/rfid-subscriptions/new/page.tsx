@@ -10,7 +10,7 @@ export default function NewPaymentRfidSubscriptionPage() {
       schema={paymentRfidSubscriptionSchema}
       fields={paymentRfidSubscriptionFields}
       basePath="/rfid-subscriptions"
-      title="New RFID Subscription"
+      title="titles.rfidSubscriptions.new"
     />
   );
 }

@@ -15,7 +15,7 @@ export default function EditPaymentLocationPage() {
       schema={paymentLocationSchema}
       fields={paymentLocationFields}
       basePath="/locations"
-      title="Edit Location"
+      title="titles.locations.edit"
     />
   );
 }

@@ -16,22 +16,22 @@ export const paymentOperatorSchema = z.object({
 });
 
 export const paymentOperatorColumns: ResourceColumn<PaymentOperator>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'name', header: 'Name' },
-  { key: 'account_type', header: 'Account type' },
-  { key: 'stripe_account_id', header: 'Stripe account ID' },
+  { key: 'id', header: 'common.id' },
+  { key: 'name', header: 'operators.name' },
+  { key: 'account_type', header: 'operators.accountType' },
+  { key: 'stripe_account_id', header: 'operators.stripeAccountId' },
 ];
 
 export const paymentOperatorFields: ResourceFormField[] = [
-  { name: 'name', label: 'Name' },
+  { name: 'name', label: 'operators.name' },
   {
     name: 'account_type',
-    label: 'Account type',
+    label: 'operators.accountType',
     type: 'select',
     options: [
-      { label: 'connected', value: 'connected' },
-      { label: 'main', value: 'main' },
+      { labelKey: 'operators.accountTypeConnected', value: 'connected' },
+      { labelKey: 'operators.accountTypeMain', value: 'main' },
     ],
   },
-  { name: 'stripe_account_id', label: 'Stripe account ID' },
+  { name: 'stripe_account_id', label: 'operators.stripeAccountId' },
 ];

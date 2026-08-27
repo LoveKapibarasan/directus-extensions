@@ -9,7 +9,7 @@ export default function PaymentRfidSubscriptionListPage() {
       resource="payment_rfid_subscriptions"
       columns={paymentRfidSubscriptionColumns}
       basePath="/rfid-subscriptions"
-      title="RFID Subscriptions"
+      title="nav.rfidSubscriptions"
     />
   );
 }

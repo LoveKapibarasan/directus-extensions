@@ -15,7 +15,7 @@ export default function EditPaymentSubscriptionPlanPage() {
       schema={paymentSubscriptionPlanSchema}
       fields={paymentSubscriptionPlanFields}
       basePath="/subscription-plans"
-      title="Edit Subscription Plan"
+      title="titles.subscriptionPlans.edit"
     />
   );
 }

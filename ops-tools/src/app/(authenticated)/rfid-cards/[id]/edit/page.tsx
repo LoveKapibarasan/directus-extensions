@@ -15,7 +15,7 @@ export default function EditPaymentRfidCardPage() {
       schema={paymentRfidCardSchema}
       fields={paymentRfidCardFields}
       basePath="/rfid-cards"
-      title="Edit RFID Card"
+      title="titles.rfidCards.edit"
     />
   );
 }

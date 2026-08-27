@@ -9,7 +9,7 @@ export default function PaymentOperatorInfoListPage() {
       resource="payment_operator_infos"
       columns={paymentOperatorInfoColumns}
       basePath="/operator-infos"
-      title="Operator Infos"
+      title="nav.operatorInfos"
     />
   );
 }

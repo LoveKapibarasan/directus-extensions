@@ -19,10 +19,12 @@ import {
 } from '@lib/components/ui/select';
 import { Label } from '@lib/components/ui/label';
 import { MapPointField } from '@lib/components/map/map-point-field';
+import { useTranslation } from '@lib/i18n/locale-provider';
+import type { TranslationKey } from '@lib/i18n/translations';
 
 export interface ResourceFormField {
   name: string;
-  label: string;
+  label: TranslationKey;
   type?: 'text' | 'number' | 'datetime-local' | 'checkbox' | 'relation' | 'select' | 'map-point';
   // For type: 'relation' — renders a searchable select backed by another resource.
   relation?: {
@@ -30,8 +32,9 @@ export interface ResourceFormField {
     optionLabel: string;
     optionValue?: string;
   };
-  // For type: 'select' — a fixed set of options (e.g. a DB enum column).
-  options?: { label: string; value: string }[];
+  // For type: 'select' — a fixed set of options (e.g. a DB enum column). The
+  // stored `value` stays the raw DB/enum string; `labelKey` is what's shown.
+  options?: { labelKey: TranslationKey; value: string }[];
   // For type: 'map-point' — a click-to-pick map bound to two number columns.
   // `name` is unused for this type (nothing is registered under it).
   mapPoint?: { latitudeField: string; longitudeField: string };
@@ -43,7 +46,7 @@ interface ResourceFormProps {
   schema: z.ZodTypeAny;
   fields: ResourceFormField[];
   basePath: string;
-  title: string;
+  title: TranslationKey;
   // Pre-fills a new record's form, e.g. when linking here from a report that
   // already knows some of the values (the consistency check page).
   defaultValues?: Record<string, unknown>;
@@ -56,6 +59,7 @@ function RelationField({
   field: ResourceFormField;
   control: any;
 }) {
+  const { t } = useTranslation();
   const optionLabelKey = field.relation!.optionLabel;
   const optionValueKey = field.relation!.optionValue ?? 'id';
   const { options, query } = useSelect({
@@ -75,7 +79,7 @@ function RelationField({
           onValueChange={(v) => controllerField.onChange(v ? Number(v) : null)}
         >
           <SelectTrigger>
-            <SelectValue placeholder={query.isLoading ? 'Loading...' : 'Select...'} />
+            <SelectValue placeholder={query.isLoading ? t('common.loading') : t('common.select')} />
           </SelectTrigger>
           <SelectContent>
             {options.map((o) => (
@@ -91,6 +95,7 @@ function RelationField({
 }
 
 function StaticSelectField({ field, control }: { field: ResourceFormField; control: any }) {
+  const { t } = useTranslation();
   return (
     <Controller
       name={field.name}
@@ -98,12 +103,12 @@ function StaticSelectField({ field, control }: { field: ResourceFormField; contr
       render={({ field: cf }) => (
         <Select value={cf.value ?? undefined} onValueChange={cf.onChange}>
           <SelectTrigger>
-            <SelectValue placeholder="Select..." />
+            <SelectValue placeholder={t('common.select')} />
           </SelectTrigger>
           <SelectContent>
             {(field.options ?? []).map((o) => (
               <SelectItem key={o.value} value={o.value}>
-                {o.label}
+                {t(o.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -159,6 +164,7 @@ export function ResourceForm({
   defaultValues,
 }: ResourceFormProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const gqlFields = Array.from(
     new Set([
       'id',
@@ -203,9 +209,9 @@ export function ResourceForm({
       <div className="p-6 max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle>{title}</CardTitle>
+            <CardTitle>{t(title)}</CardTitle>
           </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">Loading...</CardContent>
+          <CardContent className="text-muted-foreground text-sm">{t('common.loading')}</CardContent>
         </Card>
       </div>
     );
@@ -215,13 +221,13 @@ export function ResourceForm({
     <div className="p-6 max-w-2xl">
       <Card>
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle>{t(title)}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className="space-y-4">
             {fields.map((f) => (
               <div key={f.name} className="grid gap-2">
-                <Label htmlFor={f.name}>{f.label}</Label>
+                <Label htmlFor={f.name}>{t(f.label)}</Label>
                 {f.type === 'relation' && <RelationField field={f} control={control} />}
                 {f.type === 'select' && <StaticSelectField field={f} control={control} />}
                 {f.type === 'map-point' && (
@@ -259,10 +265,10 @@ export function ResourceForm({
             ))}
             <div className="flex gap-2 justify-end pt-2">
               <Button type="button" variant="outline" onClick={() => router.push(basePath)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" loading={formLoading}>
-                Save
+                {t('common.save')}
               </Button>
             </div>
           </form>

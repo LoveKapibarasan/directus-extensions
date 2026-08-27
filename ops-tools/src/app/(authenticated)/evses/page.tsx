@@ -9,7 +9,7 @@ export default function PaymentEvseListPage() {
       resource="payment_evses"
       columns={paymentEvseColumns}
       basePath="/evses"
-      title="EVSEs"
+      title="nav.evses"
     />
   );
 }

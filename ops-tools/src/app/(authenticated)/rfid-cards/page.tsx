@@ -9,7 +9,7 @@ export default function PaymentRfidCardListPage() {
       resource="payment_rfid_cards"
       columns={paymentRfidCardColumns}
       basePath="/rfid-cards"
-      title="RFID Cards"
+      title="nav.rfidCards"
     />
   );
 }

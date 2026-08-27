@@ -9,7 +9,7 @@ export default function PaymentMeterValueHistoryListPage() {
       resource="payment_meter_value_history"
       columns={paymentMeterValueHistoryColumns}
       basePath="/meter-value-history"
-      title="Meter Value History"
+      title="nav.meterValueHistory"
     />
   );
 }

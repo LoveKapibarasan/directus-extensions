@@ -15,7 +15,7 @@ export default function EditPaymentCheckoutPage() {
       schema={paymentCheckoutSchema}
       fields={paymentCheckoutFields}
       basePath="/checkouts"
-      title="Edit Checkout"
+      title="titles.checkouts.edit"
     />
   );
 }
