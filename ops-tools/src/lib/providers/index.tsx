@@ -11,6 +11,7 @@ import { useState } from 'react';
 import dataProvider from '@lib/providers/data-provider';
 import { authProvider } from '@lib/providers/auth-provider';
 import { resources } from '@lib/resources';
+import { LocaleProvider } from '@lib/i18n/locale-provider';
 
 const notificationProvider: NotificationProvider = {
   open: ({ message, description, type }) => {
@@ -27,26 +28,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <SessionProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false}>
-          <Refine
-            routerProvider={routerProvider}
-            dataProvider={dataProvider}
-            authProvider={authProvider}
-            notificationProvider={notificationProvider}
-            resources={resources}
-            options={{
-              syncWithLocation: true,
-              warnWhenUnsavedChanges: true,
-              disableTelemetry: true,
-            }}
-          >
-            {children}
-          </Refine>
-          <Toaster />
-        </ThemeProvider>
-      </QueryClientProvider>
-    </SessionProvider>
+    <LocaleProvider>
+      <SessionProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false}>
+            <Refine
+              routerProvider={routerProvider}
+              dataProvider={dataProvider}
+              authProvider={authProvider}
+              notificationProvider={notificationProvider}
+              resources={resources}
+              options={{
+                syncWithLocation: true,
+                warnWhenUnsavedChanges: true,
+                disableTelemetry: true,
+              }}
+            >
+              {children}
+            </Refine>
+            <Toaster />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </SessionProvider>
+    </LocaleProvider>
   );
 }

@@ -1,0 +1,34 @@
+name: ops-tools E2E
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ops-tools/**'
+  pull_request:
+    paths:
+      - 'ops-tools/**'
+
+defaults:
+  run:
+    working-directory: ops-tools
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.16.0'
+
+      - run: corepack enable
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - run: pnpm run test:e2e
+        env:
+          CI: true
