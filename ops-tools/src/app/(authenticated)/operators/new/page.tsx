@@ -10,7 +10,7 @@ export default function NewPaymentOperatorPage() {
       schema={paymentOperatorSchema}
       fields={paymentOperatorFields}
       basePath="/operators"
-      title="New Operator"
+      title="titles.operators.new"
     />
   );
 }

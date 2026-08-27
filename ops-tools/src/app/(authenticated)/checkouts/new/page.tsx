@@ -10,7 +10,7 @@ export default function NewPaymentCheckoutPage() {
       schema={paymentCheckoutSchema}
       fields={paymentCheckoutFields}
       basePath="/checkouts"
-      title="New Checkout"
+      title="titles.checkouts.new"
     />
   );
 }

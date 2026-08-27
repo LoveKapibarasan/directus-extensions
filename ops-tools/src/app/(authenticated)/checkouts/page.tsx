@@ -9,7 +9,7 @@ export default function PaymentCheckoutListPage() {
       resource="payment_checkouts"
       columns={paymentCheckoutColumns}
       basePath="/checkouts"
-      title="Checkouts"
+      title="nav.checkouts"
     />
   );
 }

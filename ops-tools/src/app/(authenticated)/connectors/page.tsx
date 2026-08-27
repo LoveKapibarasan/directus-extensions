@@ -9,7 +9,7 @@ export default function PaymentConnectorListPage() {
       resource="payment_connectors"
       columns={paymentConnectorColumns}
       basePath="/connectors"
-      title="Connectors"
+      title="nav.connectors"
     />
   );
 }

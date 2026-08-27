@@ -10,7 +10,7 @@ export default function NewPaymentConnectorPage() {
       schema={paymentConnectorSchema}
       fields={paymentConnectorFields}
       basePath="/connectors"
-      title="New Connector"
+      title="titles.connectors.new"
     />
   );
 }

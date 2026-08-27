@@ -22,22 +22,22 @@ export const paymentEvseSchema = z.object({
 });
 
 export const paymentEvseColumns: ResourceColumn<PaymentEvse>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'evse_id', header: 'EVSE ID' },
-  { key: 'station_id', header: 'Station ID' },
-  { key: 'status', header: 'Status' },
-  { key: 'tenant_id', header: 'Tenant' },
+  { key: 'id', header: 'common.id' },
+  { key: 'evse_id', header: 'evses.evseIdColumn' },
+  { key: 'station_id', header: 'evses.stationId' },
+  { key: 'status', header: 'evses.status' },
+  { key: 'tenant_id', header: 'evses.tenantColumn' },
 ];
 
 export const paymentEvseFields: ResourceFormField[] = [
-  { name: 'evse_id', label: 'EVSE ID (OCPP id)' },
-  { name: 'ocpp_evse_id', label: 'OCPP EVSE numeric ID', type: 'number' },
-  { name: 'status', label: 'Status' },
-  { name: 'station_id', label: 'Station ID' },
-  { name: 'tenant_id', label: 'Tenant ID' },
+  { name: 'evse_id', label: 'evses.evseIdLabel' },
+  { name: 'ocpp_evse_id', label: 'evses.ocppEvseId', type: 'number' },
+  { name: 'status', label: 'evses.status' },
+  { name: 'station_id', label: 'evses.stationId' },
+  { name: 'tenant_id', label: 'evses.tenantIdLabel' },
   {
     name: 'location_id',
-    label: 'Location',
+    label: 'evses.location',
     type: 'relation',
     relation: { resource: 'payment_locations', optionLabel: 'name' },
   },

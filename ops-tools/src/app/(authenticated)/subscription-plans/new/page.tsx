@@ -10,7 +10,7 @@ export default function NewPaymentSubscriptionPlanPage() {
       schema={paymentSubscriptionPlanSchema}
       fields={paymentSubscriptionPlanFields}
       basePath="/subscription-plans"
-      title="New Subscription Plan"
+      title="titles.subscriptionPlans.new"
     />
   );
 }

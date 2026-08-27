@@ -8,14 +8,16 @@ import { Badge } from '@lib/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@lib/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@lib/components/ui/table';
 import type { Finding, ConsistencyReport } from '@lib/server/consistency-check';
+import { useTranslation } from '@lib/i18n/locale-provider';
+import type { TranslationKey } from '@lib/i18n/translations';
 
-const kindLabel: Record<Finding['kind'], string> = {
-  missing_in_payments: 'Missing in payments',
-  orphaned_in_payments: 'Orphaned in payments',
-  field_mismatch: 'Field mismatch',
-  unmatched: 'Unmatched',
-  tariff_mismatch: 'Tariff mismatch',
-  evse_count_mismatch: 'EVSE count mismatch',
+const kindLabelKey: Record<Finding['kind'], TranslationKey> = {
+  missing_in_payments: 'consistencyCheck.kindMissing',
+  orphaned_in_payments: 'consistencyCheck.kindOrphaned',
+  field_mismatch: 'consistencyCheck.kindFieldMismatch',
+  unmatched: 'consistencyCheck.kindUnmatched',
+  tariff_mismatch: 'consistencyCheck.kindTariffMismatch',
+  evse_count_mismatch: 'consistencyCheck.kindEvseCountMismatch',
 };
 
 const kindVariant: Record<Finding['kind'], 'destructive' | 'outline' | 'secondary'> = {
@@ -28,6 +30,8 @@ const kindVariant: Record<Finding['kind'], 'destructive' | 'outline' | 'secondar
 };
 
 function FindingAction({ finding }: { finding: Finding }) {
+  const { t } = useTranslation();
+
   if (finding.entity === 'evse' && finding.kind === 'missing_in_payments') {
     const params = new URLSearchParams({ evse_id: finding.core.evseId });
     if (finding.core.evseTypeId != null) params.set('ocpp_evse_id', String(finding.core.evseTypeId));
@@ -36,7 +40,7 @@ function FindingAction({ finding }: { finding: Finding }) {
       <Button asChild size="sm" variant="outline">
         <Link href={`/evses/new?${params.toString()}`}>
           <Plus className="size-4" />
-          Create
+          {t('consistencyCheck.create')}
         </Link>
       </Button>
     );
@@ -46,7 +50,7 @@ function FindingAction({ finding }: { finding: Finding }) {
       <Button asChild size="sm" variant="outline">
         <Link href={`/evses/${finding.payment.id}/edit`}>
           <Pencil className="size-4" />
-          Edit
+          {t('consistencyCheck.edit')}
         </Link>
       </Button>
     );
@@ -58,7 +62,7 @@ function FindingAction({ finding }: { finding: Finding }) {
       <Button asChild size="sm" variant="outline">
         <Link href={`/locations/new?${params.toString()}`}>
           <Plus className="size-4" />
-          Create
+          {t('consistencyCheck.create')}
         </Link>
       </Button>
     );
@@ -68,7 +72,7 @@ function FindingAction({ finding }: { finding: Finding }) {
       <Button asChild size="sm" variant="outline">
         <Link href={`/locations/${finding.payment.id}/edit`}>
           <Pencil className="size-4" />
-          Edit
+          {t('consistencyCheck.edit')}
         </Link>
       </Button>
     );
@@ -78,7 +82,7 @@ function FindingAction({ finding }: { finding: Finding }) {
       <Button asChild size="sm" variant="outline">
         <Link href={`/connectors/${finding.payment.id}/edit`}>
           <Pencil className="size-4" />
-          Edit
+          {t('consistencyCheck.edit')}
         </Link>
       </Button>
     );
@@ -86,14 +90,15 @@ function FindingAction({ finding }: { finding: Finding }) {
   return null;
 }
 
-const ENTITY_TITLES: { entity: Finding['entity']; title: string }[] = [
-  { entity: 'evse', title: 'EVSEs' },
-  { entity: 'location', title: 'Locations' },
-  { entity: 'connector', title: 'Connectors' },
-  { entity: 'station', title: 'Charging stations' },
+const ENTITY_TITLES: { entity: Finding['entity']; titleKey: TranslationKey }[] = [
+  { entity: 'evse', titleKey: 'nav.evses' },
+  { entity: 'location', titleKey: 'nav.locations' },
+  { entity: 'connector', titleKey: 'nav.connectors' },
+  { entity: 'station', titleKey: 'consistencyCheck.stations' },
 ];
 
 export default function ConsistencyCheckPage() {
+  const { t } = useTranslation();
   const [report, setReport] = useState<ConsistencyReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -119,22 +124,19 @@ export default function ConsistencyCheckPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Consistency Check</h1>
-          <p className="text-muted-foreground text-sm">
-            Compares payment_* tables against citrineos-core's Locations / EVSEs / Connectors /
-            ChargingStations / Tariffs.
-          </p>
+          <h1 className="text-2xl font-semibold">{t('nav.consistencyCheck')}</h1>
+          <p className="text-muted-foreground text-sm">{t('consistencyCheck.subtitle')}</p>
         </div>
         <Button onClick={load} disabled={loading} variant="outline">
           <RefreshCw className={loading ? 'size-4 animate-spin' : 'size-4'} />
-          {loading ? 'Checking...' : 'Re-run check'}
+          {loading ? t('consistencyCheck.checking') : t('consistencyCheck.rerun')}
         </Button>
       </div>
 
       {error && (
         <Card className="border-destructive">
           <CardContent className="text-destructive text-sm pt-6">
-            Couldn&apos;t run the check: {error}
+            {t('consistencyCheck.errorPrefix', { error })}
           </CardContent>
         </Card>
       )}
@@ -144,9 +146,19 @@ export default function ConsistencyCheckPage() {
           <Card>
             <CardContent className="pt-6 text-sm text-muted-foreground space-y-1">
               <p>
-                {report.tariffCounts.core} core Tariff(s), {report.tariffCounts.payments} payment_tariffs
-                row(s). See caveats below — tariffs can&apos;t be matched 1:1.
+                {t('consistencyCheck.tariffCountLine', {
+                  core: report.tariffCounts.core,
+                  payments: report.tariffCounts.payments,
+                })}
               </p>
+              {/* Caveats and per-finding messages below are generated server-side
+                  (src/lib/server/consistency-check.ts) and mix fixed English
+                  wording with dynamic identifiers pulled from the data (table/
+                  column names, actual values). Translating them would mean
+                  restructuring the report to emit structured data + keys
+                  instead of pre-built sentences — left as English diagnostic
+                  text for now; only the static page chrome around them is
+                  localized. */}
               <ul className="list-disc pl-5 space-y-1">
                 {report.caveats.map((c) => (
                   <li key={c}>{c}</li>
@@ -155,13 +167,13 @@ export default function ConsistencyCheckPage() {
             </CardContent>
           </Card>
 
-          {ENTITY_TITLES.map(({ entity, title }) => {
+          {ENTITY_TITLES.map(({ entity, titleKey }) => {
             const findings = report.findings.filter((f) => f.entity === entity);
             return (
               <Card key={entity}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    {title}
+                    {t(titleKey)}
                     <Badge variant={findings.length ? 'destructive' : 'success'}>
                       {findings.length}
                     </Badge>
@@ -169,21 +181,21 @@ export default function ConsistencyCheckPage() {
                 </CardHeader>
                 <CardContent>
                   {findings.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">No issues found.</p>
+                    <p className="text-muted-foreground text-sm">{t('consistencyCheck.noIssues')}</p>
                   ) : (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Type</TableHead>
-                          <TableHead>Details</TableHead>
-                          <TableHead className="w-24">Action</TableHead>
+                          <TableHead>{t('consistencyCheck.type')}</TableHead>
+                          <TableHead>{t('consistencyCheck.details')}</TableHead>
+                          <TableHead className="w-24">{t('consistencyCheck.action')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {findings.map((f, i) => (
                           <TableRow key={i}>
                             <TableCell>
-                              <Badge variant={kindVariant[f.kind]}>{kindLabel[f.kind]}</Badge>
+                              <Badge variant={kindVariant[f.kind]}>{t(kindLabelKey[f.kind])}</Badge>
                             </TableCell>
                             <TableCell className="text-sm">{f.message}</TableCell>
                             <TableCell>

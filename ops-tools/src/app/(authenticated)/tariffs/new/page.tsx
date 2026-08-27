@@ -10,7 +10,7 @@ export default function NewTariffPage() {
       schema={paymentTariffSchema}
       fields={paymentTariffFields}
       basePath="/tariffs"
-      title="New Tariff"
+      title="titles.tariffs.new"
     />
   );
 }

@@ -10,7 +10,7 @@ export default function NewPaymentMeterValueHistoryPage() {
       schema={paymentMeterValueHistorySchema}
       fields={paymentMeterValueHistoryFields}
       basePath="/meter-value-history"
-      title="New Meter Reading"
+      title="titles.meterValueHistory.new"
     />
   );
 }

@@ -17,19 +17,19 @@ export const paymentOperatorInfoSchema = z.object({
 });
 
 export const paymentOperatorInfoColumns: ResourceColumn<PaymentOperatorInfo>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'operator_id', header: 'Operator ID' },
-  { key: 'language_code', header: 'Language' },
-  { key: 'payment_terms_conditions', header: 'Terms & conditions' },
+  { key: 'id', header: 'common.id' },
+  { key: 'operator_id', header: 'operatorInfos.operatorIdColumn' },
+  { key: 'language_code', header: 'operatorInfos.languageColumn' },
+  { key: 'payment_terms_conditions', header: 'operatorInfos.termsConditions' },
 ];
 
 export const paymentOperatorInfoFields: ResourceFormField[] = [
   {
     name: 'operator_id',
-    label: 'Operator',
+    label: 'operatorInfos.operatorLabel',
     type: 'relation',
     relation: { resource: 'payment_operators', optionLabel: 'name' },
   },
-  { name: 'language_code', label: 'Language code (e.g. en, de, ja)' },
-  { name: 'payment_terms_conditions', label: 'Terms & conditions' },
+  { name: 'language_code', label: 'operatorInfos.languageCodeLabel' },
+  { name: 'payment_terms_conditions', label: 'operatorInfos.termsConditions' },
 ];

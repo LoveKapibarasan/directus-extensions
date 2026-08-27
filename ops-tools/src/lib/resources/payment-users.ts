@@ -16,14 +16,14 @@ export const paymentUserSchema = z.object({
 });
 
 export const paymentUserColumns: ResourceColumn<PaymentUser>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'email', header: 'Email' },
-  { key: 'keycloak_id', header: 'Keycloak ID' },
-  { key: 'stripe_customer_id', header: 'Stripe customer ID' },
+  { key: 'id', header: 'common.id' },
+  { key: 'email', header: 'users.email' },
+  { key: 'keycloak_id', header: 'users.keycloakIdColumn' },
+  { key: 'stripe_customer_id', header: 'users.stripeCustomerId' },
 ];
 
 export const paymentUserFields: ResourceFormField[] = [
-  { name: 'email', label: 'Email' },
-  { name: 'keycloak_id', label: 'Keycloak user ID' },
-  { name: 'stripe_customer_id', label: 'Stripe customer ID' },
+  { name: 'email', label: 'users.email' },
+  { name: 'keycloak_id', label: 'users.keycloakIdLabel' },
+  { name: 'stripe_customer_id', label: 'users.stripeCustomerId' },
 ];

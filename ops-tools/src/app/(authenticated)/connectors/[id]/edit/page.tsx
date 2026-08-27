@@ -15,7 +15,7 @@ export default function EditPaymentConnectorPage() {
       schema={paymentConnectorSchema}
       fields={paymentConnectorFields}
       basePath="/connectors"
-      title="Edit Connector"
+      title="titles.connectors.edit"
     />
   );
 }

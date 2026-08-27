@@ -10,7 +10,7 @@ export default function NewPaymentRfidCardPage() {
       schema={paymentRfidCardSchema}
       fields={paymentRfidCardFields}
       basePath="/rfid-cards"
-      title="New RFID Card"
+      title="titles.rfidCards.new"
     />
   );
 }

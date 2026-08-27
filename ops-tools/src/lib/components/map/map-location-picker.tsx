@@ -3,6 +3,7 @@
 import type { MapMouseEvent } from '@vis.gl/react-google-maps';
 import { AdvancedMarker, APIProvider, Map, Pin } from '@vis.gl/react-google-maps';
 import { useMapsConfig } from '@lib/components/map/use-maps-config';
+import { useTranslation } from '@lib/i18n/locale-provider';
 
 export const defaultLatitude = 51.1657; // Germany, centered — AI-Charge's home market
 export const defaultLongitude = 10.4515;
@@ -22,6 +23,7 @@ export interface MapLocationPickerProps {
  */
 export function MapLocationPicker({ latitude, longitude, onChange }: MapLocationPickerProps) {
   const config = useMapsConfig();
+  const { t } = useTranslation();
   const hasPoint = latitude != null && longitude != null;
 
   const handleClick = (e: MapMouseEvent) => {
@@ -37,7 +39,7 @@ export function MapLocationPicker({ latitude, longitude, onChange }: MapLocation
   if (!config.apiKey) {
     return (
       <div className="h-64 w-full rounded-md border bg-muted flex items-center justify-center text-sm text-muted-foreground p-4 text-center">
-        Google Maps isn&apos;t configured (GOOGLE_MAPS_API_KEY). Enter coordinates manually below.
+        {t('mapUi.notConfiguredPicker')}
       </div>
     );
   }

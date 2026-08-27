@@ -15,7 +15,7 @@ export default function EditPaymentRfidSubscriptionPage() {
       schema={paymentRfidSubscriptionSchema}
       fields={paymentRfidSubscriptionFields}
       basePath="/rfid-subscriptions"
-      title="Edit RFID Subscription"
+      title="titles.rfidSubscriptions.edit"
     />
   );
 }

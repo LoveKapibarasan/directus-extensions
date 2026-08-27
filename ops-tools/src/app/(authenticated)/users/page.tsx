@@ -9,7 +9,7 @@ export default function PaymentUserListPage() {
       resource="payment_users"
       columns={paymentUserColumns}
       basePath="/users"
-      title="Users"
+      title="nav.users"
     />
   );
 }

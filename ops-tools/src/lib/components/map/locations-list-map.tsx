@@ -6,12 +6,14 @@ import { APIProvider, AdvancedMarker, Map, Pin } from '@vis.gl/react-google-maps
 import { useMapsConfig } from '@lib/components/map/use-maps-config';
 import { defaultLatitude, defaultLongitude } from '@lib/components/map/map-location-picker';
 import type { PaymentLocation } from '@lib/resources/payment-locations';
+import { useTranslation } from '@lib/i18n/locale-provider';
 
 const defaultZoom = 5;
 
 export function LocationsListMap() {
   const router = useRouter();
   const config = useMapsConfig();
+  const { t } = useTranslation();
   const { result, query } = useList<PaymentLocation>({
     resource: 'payment_locations',
     pagination: { pageSize: 1000 },
@@ -30,7 +32,7 @@ export function LocationsListMap() {
   if (!config.apiKey) {
     return (
       <div className="h-[70vh] w-full rounded-md border flex items-center justify-center text-sm text-muted-foreground">
-        Google Maps isn&apos;t configured (GOOGLE_MAPS_API_KEY).
+        {t('mapUi.notConfiguredList')}
       </div>
     );
   }

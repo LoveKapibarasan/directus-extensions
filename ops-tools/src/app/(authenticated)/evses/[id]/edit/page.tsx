@@ -15,7 +15,7 @@ export default function EditPaymentEvsePage() {
       schema={paymentEvseSchema}
       fields={paymentEvseFields}
       basePath="/evses"
-      title="Edit EVSE"
+      title="titles.evses.edit"
     />
   );
 }

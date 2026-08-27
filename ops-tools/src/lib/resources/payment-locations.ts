@@ -32,32 +32,36 @@ export const paymentLocationSchema = z.object({
 });
 
 export const paymentLocationColumns: ResourceColumn<PaymentLocation>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'location_id', header: 'Location ID' },
-  { key: 'name', header: 'Name' },
-  { key: 'city', header: 'City' },
-  { key: 'country', header: 'Country' },
-  { key: 'is_public', header: 'Public', render: (r) => (r.is_public ? 'Yes' : 'No') },
+  { key: 'id', header: 'common.id' },
+  { key: 'location_id', header: 'locations.locationIdColumn' },
+  { key: 'name', header: 'locations.name' },
+  { key: 'city', header: 'locations.city' },
+  { key: 'country', header: 'locations.countryColumn' },
+  {
+    key: 'is_public',
+    header: 'locations.public',
+    render: (r, t) => (r.is_public ? t('common.yes') : t('common.no')),
+  },
 ];
 
 export const paymentLocationFields: ResourceFormField[] = [
-  { name: 'location_id', label: 'Location ID (external/OCPP id)' },
-  { name: 'name', label: 'Name' },
-  { name: 'address', label: 'Address' },
-  { name: 'city', label: 'City' },
-  { name: 'state', label: 'State' },
-  { name: 'postal_code', label: 'Postal code' },
-  { name: 'country', label: 'Country (ISO alpha-3, e.g. DEU)' },
+  { name: 'location_id', label: 'locations.locationIdLabel' },
+  { name: 'name', label: 'locations.name' },
+  { name: 'address', label: 'locations.address' },
+  { name: 'city', label: 'locations.city' },
+  { name: 'state', label: 'locations.state' },
+  { name: 'postal_code', label: 'locations.postalCode' },
+  { name: 'country', label: 'locations.countryLabel' },
   {
     name: 'location',
-    label: 'Location (click the map, or enter coordinates)',
+    label: 'locations.mapPoint',
     type: 'map-point',
     mapPoint: { latitudeField: 'latitude', longitudeField: 'longitude' },
   },
-  { name: 'is_public', label: 'Public', type: 'checkbox' },
+  { name: 'is_public', label: 'locations.public', type: 'checkbox' },
   {
     name: 'operator_id',
-    label: 'Operator',
+    label: 'locations.operator',
     type: 'relation',
     relation: { resource: 'payment_operators', optionLabel: 'name' },
   },

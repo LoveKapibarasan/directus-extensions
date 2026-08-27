@@ -15,7 +15,7 @@ export default function EditPaymentMeterValueHistoryPage() {
       schema={paymentMeterValueHistorySchema}
       fields={paymentMeterValueHistoryFields}
       basePath="/meter-value-history"
-      title="Edit Meter Reading"
+      title="titles.meterValueHistory.edit"
     />
   );
 }

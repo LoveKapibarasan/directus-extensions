@@ -18,16 +18,20 @@ export const paymentSubscriptionPlanSchema = z.object({
 });
 
 export const paymentSubscriptionPlanColumns: ResourceColumn<PaymentSubscriptionPlan>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'name', header: 'Name' },
-  { key: 'locale', header: 'Locale' },
-  { key: 'is_active', header: 'Active', render: (r) => (r.is_active ? 'Yes' : 'No') },
-  { key: 'stripe_price_id', header: 'Stripe price ID' },
+  { key: 'id', header: 'common.id' },
+  { key: 'name', header: 'subscriptionPlans.name' },
+  { key: 'locale', header: 'subscriptionPlans.localeColumn' },
+  {
+    key: 'is_active',
+    header: 'subscriptionPlans.active',
+    render: (r, t) => (r.is_active ? t('common.yes') : t('common.no')),
+  },
+  { key: 'stripe_price_id', header: 'subscriptionPlans.stripePriceId' },
 ];
 
 export const paymentSubscriptionPlanFields: ResourceFormField[] = [
-  { name: 'name', label: 'Name' },
-  { name: 'locale', label: 'Locale (e.g. en, de, ja)' },
-  { name: 'stripe_price_id', label: 'Stripe price ID' },
-  { name: 'is_active', label: 'Active', type: 'checkbox' },
+  { name: 'name', label: 'subscriptionPlans.name' },
+  { name: 'locale', label: 'subscriptionPlans.localeLabel' },
+  { name: 'stripe_price_id', label: 'subscriptionPlans.stripePriceId' },
+  { name: 'is_active', label: 'subscriptionPlans.active', type: 'checkbox' },
 ];

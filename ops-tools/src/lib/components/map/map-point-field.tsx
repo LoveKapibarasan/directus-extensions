@@ -3,6 +3,7 @@
 import { Controller } from 'react-hook-form';
 import { Input } from '@lib/components/ui/input';
 import { MapLocationPicker } from '@lib/components/map/map-location-picker';
+import { useTranslation } from '@lib/i18n/locale-provider';
 
 interface MapPointFieldProps {
   control: any;
@@ -15,6 +16,7 @@ interface MapPointFieldProps {
  * inputs, kept in sync in both directions.
  */
 export function MapPointField({ control, latitudeField, longitudeField }: MapPointFieldProps) {
+  const { t } = useTranslation();
   return (
     <Controller
       name={latitudeField}
@@ -37,14 +39,14 @@ export function MapPointField({ control, latitudeField, longitudeField }: MapPoi
                 <Input
                   type="number"
                   step="any"
-                  placeholder="Latitude"
+                  placeholder={t('mapUi.latitude')}
                   value={latField.value ?? ''}
                   onChange={(e) => latField.onChange(e.target.value === '' ? null : Number(e.target.value))}
                 />
                 <Input
                   type="number"
                   step="any"
-                  placeholder="Longitude"
+                  placeholder={t('mapUi.longitude')}
                   value={lngField.value ?? ''}
                   onChange={(e) => lngField.onChange(e.target.value === '' ? null : Number(e.target.value))}
                 />

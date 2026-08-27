@@ -8,7 +8,7 @@ const STORAGE_KEY = 'ops-tools-locale';
 interface LocaleContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, params?: Record<string, string | number>) => string;
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -36,7 +36,16 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     window.localStorage.setItem(STORAGE_KEY, next);
   }, []);
 
-  const t = useCallback((key: TranslationKey) => translations[locale][key], [locale]);
+  const t = useCallback(
+    (key: TranslationKey, params?: Record<string, string | number>) => {
+      const template = translations[locale][key];
+      if (!params) return template;
+      return template.replace(/\{(\w+)\}/g, (match, name) =>
+        name in params ? String(params[name]) : match,
+      );
+    },
+    [locale],
+  );
 
   const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t]);
 

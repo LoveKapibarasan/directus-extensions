@@ -15,7 +15,7 @@ export default function EditPaymentUserPage() {
       schema={paymentUserSchema}
       fields={paymentUserFields}
       basePath="/users"
-      title="Edit User"
+      title="titles.users.edit"
     />
   );
 }

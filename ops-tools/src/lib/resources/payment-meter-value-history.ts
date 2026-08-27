@@ -18,21 +18,21 @@ export const paymentMeterValueHistorySchema = z.object({
 });
 
 export const paymentMeterValueHistoryColumns: ResourceColumn<PaymentMeterValueHistory>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'checkout_id', header: 'Checkout ID' },
-  { key: 'recorded_at', header: 'Recorded at' },
-  { key: 'kwh', header: 'kWh' },
-  { key: 'power_kw', header: 'Power (kW)' },
+  { key: 'id', header: 'common.id' },
+  { key: 'checkout_id', header: 'meterValueHistory.checkoutIdColumn' },
+  { key: 'recorded_at', header: 'meterValueHistory.recordedAt' },
+  { key: 'kwh', header: 'meterValueHistory.kwh' },
+  { key: 'power_kw', header: 'meterValueHistory.powerKw' },
 ];
 
 export const paymentMeterValueHistoryFields: ResourceFormField[] = [
   {
     name: 'checkout_id',
-    label: 'Checkout',
+    label: 'meterValueHistory.checkoutLabel',
     type: 'relation',
     relation: { resource: 'payment_checkouts', optionLabel: 'payment_intent_id' },
   },
-  { name: 'recorded_at', label: 'Recorded at', type: 'datetime-local' },
-  { name: 'kwh', label: 'kWh', type: 'number' },
-  { name: 'power_kw', label: 'Power (kW)', type: 'number' },
+  { name: 'recorded_at', label: 'meterValueHistory.recordedAt', type: 'datetime-local' },
+  { name: 'kwh', label: 'meterValueHistory.kwh', type: 'number' },
+  { name: 'power_kw', label: 'meterValueHistory.powerKw', type: 'number' },
 ];

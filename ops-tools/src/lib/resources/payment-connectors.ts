@@ -22,27 +22,27 @@ export const paymentConnectorSchema = z.object({
 });
 
 export const paymentConnectorColumns: ResourceColumn<PaymentConnector>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'connector_id', header: 'Connector ID' },
-  { key: 'power_type', header: 'Power type' },
-  { key: 'max_voltage', header: 'Max voltage' },
-  { key: 'max_amperage', header: 'Max amperage' },
+  { key: 'id', header: 'common.id' },
+  { key: 'connector_id', header: 'connectors.connectorIdColumn' },
+  { key: 'power_type', header: 'connectors.powerTypeColumn' },
+  { key: 'max_voltage', header: 'connectors.maxVoltage' },
+  { key: 'max_amperage', header: 'connectors.maxAmperage' },
 ];
 
 export const paymentConnectorFields: ResourceFormField[] = [
-  { name: 'connector_id', label: 'Connector ID (OCPP id)' },
-  { name: 'power_type', label: 'Power type (e.g. AC_3_PHASE, DC)' },
-  { name: 'max_voltage', label: 'Max voltage', type: 'number' },
-  { name: 'max_amperage', label: 'Max amperage', type: 'number' },
+  { name: 'connector_id', label: 'connectors.connectorIdLabel' },
+  { name: 'power_type', label: 'connectors.powerTypeLabel' },
+  { name: 'max_voltage', label: 'connectors.maxVoltage', type: 'number' },
+  { name: 'max_amperage', label: 'connectors.maxAmperage', type: 'number' },
   {
     name: 'evse_id',
-    label: 'EVSE',
+    label: 'connectors.evse',
     type: 'relation',
     relation: { resource: 'payment_evses', optionLabel: 'evse_id' },
   },
   {
     name: 'tariff_id',
-    label: 'Tariff',
+    label: 'connectors.tariff',
     type: 'relation',
     relation: { resource: 'payment_tariffs', optionLabel: 'currency' },
   },

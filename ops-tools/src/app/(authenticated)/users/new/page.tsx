@@ -10,7 +10,7 @@ export default function NewPaymentUserPage() {
       schema={paymentUserSchema}
       fields={paymentUserFields}
       basePath="/users"
-      title="New User"
+      title="titles.users.new"
     />
   );
 }
