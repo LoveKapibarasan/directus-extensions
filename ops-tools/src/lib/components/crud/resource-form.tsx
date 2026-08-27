@@ -18,11 +18,12 @@ import {
   SelectValue,
 } from '@lib/components/ui/select';
 import { Label } from '@lib/components/ui/label';
+import { MapPointField } from '@lib/components/map/map-point-field';
 
 export interface ResourceFormField {
   name: string;
   label: string;
-  type?: 'text' | 'number' | 'datetime-local' | 'checkbox' | 'relation' | 'select';
+  type?: 'text' | 'number' | 'datetime-local' | 'checkbox' | 'relation' | 'select' | 'map-point';
   // For type: 'relation' — renders a searchable select backed by another resource.
   relation?: {
     resource: string;
@@ -31,6 +32,9 @@ export interface ResourceFormField {
   };
   // For type: 'select' — a fixed set of options (e.g. a DB enum column).
   options?: { label: string; value: string }[];
+  // For type: 'map-point' — a click-to-pick map bound to two number columns.
+  // `name` is unused for this type (nothing is registered under it).
+  mapPoint?: { latitudeField: string; longitudeField: string };
 }
 
 interface ResourceFormProps {
@@ -144,7 +148,13 @@ function TextField({ field, control }: { field: ResourceFormField; control: any 
 
 export function ResourceForm({ resource, id, schema, fields, basePath, title }: ResourceFormProps) {
   const router = useRouter();
-  const gqlFields = Array.from(new Set(['id', ...fields.map((f) => f.name)]));
+  const gqlFields = Array.from(
+    new Set([
+      'id',
+      ...fields.map((f) => f.name),
+      ...fields.flatMap((f) => (f.mapPoint ? [f.mapPoint.latitudeField, f.mapPoint.longitudeField] : [])),
+    ]),
+  );
   const {
     refineCore: { onFinish, formLoading, query },
     control,
@@ -202,6 +212,13 @@ export function ResourceForm({ resource, id, schema, fields, basePath, title }: 
                 <Label htmlFor={f.name}>{f.label}</Label>
                 {f.type === 'relation' && <RelationField field={f} control={control} />}
                 {f.type === 'select' && <StaticSelectField field={f} control={control} />}
+                {f.type === 'map-point' && (
+                  <MapPointField
+                    control={control}
+                    latitudeField={f.mapPoint!.latitudeField}
+                    longitudeField={f.mapPoint!.longitudeField}
+                  />
+                )}
                 {f.type === 'checkbox' && (
                   <Controller
                     name={f.name}
@@ -214,9 +231,18 @@ export function ResourceForm({ resource, id, schema, fields, basePath, title }: 
                 {(!f.type || f.type === 'text' || f.type === 'number' || f.type === 'datetime-local') && (
                   <TextField field={f} control={control} />
                 )}
-                {errors[f.name] && (
-                  <p className="text-destructive text-sm">{String(errors[f.name]?.message)}</p>
-                )}
+                {f.type === 'map-point'
+                  ? [f.mapPoint!.latitudeField, f.mapPoint!.longitudeField].map(
+                      (name) =>
+                        errors[name] && (
+                          <p key={name} className="text-destructive text-sm">
+                            {String(errors[name]?.message)}
+                          </p>
+                        ),
+                    )
+                  : errors[f.name] && (
+                      <p className="text-destructive text-sm">{String(errors[f.name]?.message)}</p>
+                    )}
               </div>
             ))}
             <div className="flex gap-2 justify-end pt-2">

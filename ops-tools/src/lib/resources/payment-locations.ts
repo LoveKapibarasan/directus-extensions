@@ -48,8 +48,12 @@ export const paymentLocationFields: ResourceFormField[] = [
   { name: 'state', label: 'State' },
   { name: 'postal_code', label: 'Postal code' },
   { name: 'country', label: 'Country (ISO alpha-3, e.g. DEU)' },
-  { name: 'latitude', label: 'Latitude', type: 'number' },
-  { name: 'longitude', label: 'Longitude', type: 'number' },
+  {
+    name: 'location',
+    label: 'Location (click the map, or enter coordinates)',
+    type: 'map-point',
+    mapPoint: { latitudeField: 'latitude', longitudeField: 'longitude' },
+  },
   { name: 'is_public', label: 'Public', type: 'checkbox' },
   {
     name: 'operator_id',
