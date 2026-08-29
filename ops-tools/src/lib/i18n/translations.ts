@@ -19,6 +19,7 @@ const en = {
   'nav.connectors': 'Connectors',
   'nav.tariffs': 'Tariffs',
   'nav.checkouts': 'Checkouts',
+  'nav.reservations': 'Reservations',
   'nav.meterValueHistory': 'Meter Value History',
   'nav.users': 'Users',
   'nav.subscriptionPlans': 'Plans',
@@ -53,6 +54,8 @@ const en = {
   'titles.subscriptionPlans.list': 'Subscription Plans',
   'titles.checkouts.new': 'New Checkout',
   'titles.checkouts.edit': 'Edit Checkout',
+  'titles.reservations.new': 'New Reservation',
+  'titles.reservations.edit': 'Edit Reservation',
   'titles.connectors.new': 'New Connector',
   'titles.connectors.edit': 'Edit Connector',
   'titles.evses.new': 'New EVSE',
@@ -98,6 +101,25 @@ const en = {
   'checkouts.statusCaptureFailed': 'Capture failed',
   'checkouts.statusAuthorizationReleased': 'Authorization released',
 
+  // Reservations
+  'reservations.startTime': 'Start time',
+  'reservations.durationMinutesColumn': 'Duration (min)',
+  'reservations.durationMinutesLabel': 'Duration (minutes)',
+  'reservations.feeAmountCentsColumn': 'Fee (cents)',
+  'reservations.feeAmountCentsLabel': 'Fee amount (CENTS, e.g. 500 = EUR 5 — not major units)',
+  'reservations.statusColumn': 'Status',
+  'reservations.statusLabel': 'Status',
+  'reservations.statusPendingPayment': 'Pending payment',
+  'reservations.statusActive': 'Active',
+  'reservations.statusExpired': 'Expired',
+  'reservations.statusCancelled': 'Cancelled',
+  'reservations.user': 'User',
+  'reservations.connector': 'Connector',
+  'reservations.tariff': 'Tariff',
+  'reservations.currency': 'Currency',
+  'reservations.paymentIntentIdLabel': 'Stripe payment intent ID',
+  'reservations.paymentStatusLabel': 'Payment status',
+
   // Connectors
   'connectors.connectorIdColumn': 'Connector ID',
   'connectors.connectorIdLabel': 'Connector ID (OCPP id)',
@@ -117,6 +139,7 @@ const en = {
   'evses.tenantColumn': 'Tenant',
   'evses.tenantIdLabel': 'Tenant ID',
   'evses.location': 'Location',
+  'evses.reservable': 'Reservable',
 
   // Locations
   'locations.locationIdColumn': 'Location ID',
@@ -275,6 +298,7 @@ const ja: Record<keyof typeof en, string> = {
   'nav.connectors': 'コネクタ',
   'nav.tariffs': '料金プラン',
   'nav.checkouts': '決済',
+  'nav.reservations': '予約',
   'nav.meterValueHistory': 'メーター値履歴',
   'nav.users': 'ユーザー',
   'nav.subscriptionPlans': 'プラン',
@@ -309,6 +333,8 @@ const ja: Record<keyof typeof en, string> = {
   'titles.subscriptionPlans.list': 'サブスクリプションプラン',
   'titles.checkouts.new': '新規決済',
   'titles.checkouts.edit': '決済の編集',
+  'titles.reservations.new': '新規予約',
+  'titles.reservations.edit': '予約の編集',
   'titles.connectors.new': '新規コネクタ',
   'titles.connectors.edit': 'コネクタの編集',
   'titles.evses.new': '新規EVSE',
@@ -354,6 +380,25 @@ const ja: Record<keyof typeof en, string> = {
   'checkouts.statusCaptureFailed': '確定失敗',
   'checkouts.statusAuthorizationReleased': '与信解放済み',
 
+  // Reservations（予約）
+  'reservations.startTime': '開始日時',
+  'reservations.durationMinutesColumn': '所要時間（分）',
+  'reservations.durationMinutesLabel': '所要時間（分）',
+  'reservations.feeAmountCentsColumn': '料金（セント）',
+  'reservations.feeAmountCentsLabel': '料金（セント単位、例：500 = 5ユーロ。主要通貨単位ではないので注意）',
+  'reservations.statusColumn': 'ステータス',
+  'reservations.statusLabel': 'ステータス',
+  'reservations.statusPendingPayment': '支払い待ち',
+  'reservations.statusActive': '有効',
+  'reservations.statusExpired': '期限切れ',
+  'reservations.statusCancelled': 'キャンセル済み',
+  'reservations.user': 'ユーザー',
+  'reservations.connector': 'コネクタ',
+  'reservations.tariff': '料金プラン',
+  'reservations.currency': '通貨',
+  'reservations.paymentIntentIdLabel': 'Stripe支払いインテントID',
+  'reservations.paymentStatusLabel': '支払いステータス',
+
   // Connectors（コネクタ）
   'connectors.connectorIdColumn': 'コネクタID',
   'connectors.connectorIdLabel': 'コネクタID（OCPP id）',
@@ -373,6 +418,7 @@ const ja: Record<keyof typeof en, string> = {
   'evses.tenantColumn': 'テナント',
   'evses.tenantIdLabel': 'テナントID',
   'evses.location': '拠点',
+  'evses.reservable': '予約可能',
 
   // Locations（拠点）
   'locations.locationIdColumn': '拠点ID',
@@ -531,6 +577,7 @@ const de: Record<keyof typeof en, string> = {
   'nav.connectors': 'Anschlüsse',
   'nav.tariffs': 'Tarife',
   'nav.checkouts': 'Zahlungen',
+  'nav.reservations': 'Reservierungen',
   'nav.meterValueHistory': 'Zählerstandshistorie',
   'nav.users': 'Benutzer',
   'nav.subscriptionPlans': 'Tarifpläne',
@@ -565,6 +612,8 @@ const de: Record<keyof typeof en, string> = {
   'titles.subscriptionPlans.list': 'Tarifpläne',
   'titles.checkouts.new': 'Neue Zahlung',
   'titles.checkouts.edit': 'Zahlung bearbeiten',
+  'titles.reservations.new': 'Neue Reservierung',
+  'titles.reservations.edit': 'Reservierung bearbeiten',
   'titles.connectors.new': 'Neuer Anschluss',
   'titles.connectors.edit': 'Anschluss bearbeiten',
   'titles.evses.new': 'Neue EVSE',
@@ -610,6 +659,26 @@ const de: Record<keyof typeof en, string> = {
   'checkouts.statusCaptureFailed': 'Erfassung fehlgeschlagen',
   'checkouts.statusAuthorizationReleased': 'Autorisierung freigegeben',
 
+  // Reservations (Reservierungen)
+  'reservations.startTime': 'Startzeit',
+  'reservations.durationMinutesColumn': 'Dauer (Min.)',
+  'reservations.durationMinutesLabel': 'Dauer (Minuten)',
+  'reservations.feeAmountCentsColumn': 'Gebühr (Cent)',
+  'reservations.feeAmountCentsLabel':
+    'Gebührenbetrag (CENT, z. B. 500 = 5 EUR — nicht die Hauptwährungseinheit)',
+  'reservations.statusColumn': 'Status',
+  'reservations.statusLabel': 'Status',
+  'reservations.statusPendingPayment': 'Zahlung ausstehend',
+  'reservations.statusActive': 'Aktiv',
+  'reservations.statusExpired': 'Abgelaufen',
+  'reservations.statusCancelled': 'Storniert',
+  'reservations.user': 'Benutzer',
+  'reservations.connector': 'Anschluss',
+  'reservations.tariff': 'Tarif',
+  'reservations.currency': 'Währung',
+  'reservations.paymentIntentIdLabel': 'Stripe Payment Intent ID',
+  'reservations.paymentStatusLabel': 'Zahlungsstatus',
+
   // Connectors (Anschlüsse)
   'connectors.connectorIdColumn': 'Anschluss-ID',
   'connectors.connectorIdLabel': 'Anschluss-ID (OCPP-ID)',
@@ -629,6 +698,7 @@ const de: Record<keyof typeof en, string> = {
   'evses.tenantColumn': 'Mandant',
   'evses.tenantIdLabel': 'Mandanten-ID',
   'evses.location': 'Standort',
+  'evses.reservable': 'Reservierbar',
 
   // Locations (Standorte)
   'locations.locationIdColumn': 'Standort-ID',

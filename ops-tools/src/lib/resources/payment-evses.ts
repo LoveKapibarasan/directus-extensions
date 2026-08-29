@@ -10,6 +10,7 @@ export interface PaymentEvse {
   station_id: string;
   tenant_id: string;
   location_id: number | null;
+  reservable: boolean;
 }
 
 export const paymentEvseSchema = z.object({
@@ -19,6 +20,7 @@ export const paymentEvseSchema = z.object({
   station_id: z.string().min(1),
   tenant_id: z.string().min(1),
   location_id: z.number().nullable().optional(),
+  reservable: z.boolean().default(false),
 });
 
 export const paymentEvseColumns: ResourceColumn<PaymentEvse>[] = [
@@ -27,6 +29,11 @@ export const paymentEvseColumns: ResourceColumn<PaymentEvse>[] = [
   { key: 'station_id', header: 'evses.stationId' },
   { key: 'status', header: 'evses.status' },
   { key: 'tenant_id', header: 'evses.tenantColumn' },
+  {
+    key: 'reservable',
+    header: 'evses.reservable',
+    render: (r, t) => (r.reservable ? t('common.yes') : t('common.no')),
+  },
 ];
 
 export const paymentEvseFields: ResourceFormField[] = [
@@ -41,4 +48,5 @@ export const paymentEvseFields: ResourceFormField[] = [
     type: 'relation',
     relation: { resource: 'payment_locations', optionLabel: 'name' },
   },
+  { name: 'reservable', label: 'evses.reservable', type: 'checkbox' },
 ];

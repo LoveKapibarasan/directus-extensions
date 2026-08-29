@@ -39,6 +39,13 @@ export const resources: ResourceProps[] = [
     meta: { label: 'Checkouts', group: 'Payments' },
   },
   {
+    name: 'payment_reservations',
+    list: '/reservations',
+    create: '/reservations/new',
+    edit: '/reservations/:id/edit',
+    meta: { label: 'Reservations', group: 'Payments' },
+  },
+  {
     name: 'payment_meter_value_history',
     list: '/meter-value-history',
     create: '/meter-value-history/new',
