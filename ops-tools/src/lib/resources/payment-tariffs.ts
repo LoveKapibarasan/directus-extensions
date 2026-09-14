@@ -17,6 +17,7 @@ export interface PaymentTariff {
   block_start_minute: number | null;
   block_price_minute: number | null;
   block_price_limit: number | null;
+  reservation_price_minute: number | null;
 }
 
 export const paymentTariffSchema = z.object({
@@ -31,6 +32,7 @@ export const paymentTariffSchema = z.object({
   block_start_minute: z.number().nullable().optional(),
   block_price_minute: z.number().nullable().optional(),
   block_price_limit: z.number().nullable().optional(),
+  reservation_price_minute: z.number().nullable().optional(),
 });
 
 export const paymentTariffColumns: ResourceColumn<PaymentTariff>[] = [
@@ -63,4 +65,9 @@ export const paymentTariffFields: ResourceFormField[] = [
   { name: 'block_start_minute', label: 'tariffs.blockStartMinute', type: 'number' },
   { name: 'block_price_minute', label: 'tariffs.blockPriceMinute', type: 'number' },
   { name: 'block_price_limit', label: 'tariffs.blockPriceLimit', type: 'number' },
+  {
+    name: 'reservation_price_minute',
+    label: 'tariffs.reservationPriceMinute',
+    type: 'number',
+  },
 ];

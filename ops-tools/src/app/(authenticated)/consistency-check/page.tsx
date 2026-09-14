@@ -18,6 +18,7 @@ const kindLabelKey: Record<Finding['kind'], TranslationKey> = {
   unmatched: 'consistencyCheck.kindUnmatched',
   tariff_mismatch: 'consistencyCheck.kindTariffMismatch',
   evse_count_mismatch: 'consistencyCheck.kindEvseCountMismatch',
+  missing_in_core: 'consistencyCheck.kindMissingInCore',
 };
 
 const kindVariant: Record<Finding['kind'], 'destructive' | 'outline' | 'secondary'> = {
@@ -27,6 +28,7 @@ const kindVariant: Record<Finding['kind'], 'destructive' | 'outline' | 'secondar
   unmatched: 'outline',
   tariff_mismatch: 'outline',
   evse_count_mismatch: 'secondary',
+  missing_in_core: 'destructive',
 };
 
 function FindingAction({ finding }: { finding: Finding }) {
@@ -71,6 +73,16 @@ function FindingAction({ finding }: { finding: Finding }) {
     return (
       <Button asChild size="sm" variant="outline">
         <Link href={`/locations/${finding.payment.id}/edit`}>
+          <Pencil className="size-4" />
+          {t('consistencyCheck.edit')}
+        </Link>
+      </Button>
+    );
+  }
+  if (finding.entity === 'station' && finding.kind === 'missing_in_core') {
+    return (
+      <Button asChild size="sm" variant="outline">
+        <Link href={`/stations/${finding.payment.id}/edit`}>
           <Pencil className="size-4" />
           {t('consistencyCheck.edit')}
         </Link>

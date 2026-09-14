@@ -50,6 +50,10 @@ interface ResourceFormProps {
   // Pre-fills a new record's form, e.g. when linking here from a report that
   // already knows some of the values (the consistency check page).
   defaultValues?: Record<string, unknown>;
+  // Primary key column(s), requested back from Hasura with the record.
+  // Defaults to ['id']; tables without an `id` column (create-only, e.g.
+  // payment_shop_product_relations) pass their own key instead.
+  primaryKey?: string[];
 }
 
 function RelationField({
@@ -162,12 +166,13 @@ export function ResourceForm({
   basePath,
   title,
   defaultValues,
+  primaryKey = ['id'],
 }: ResourceFormProps) {
   const router = useRouter();
   const { t } = useTranslation();
   const gqlFields = Array.from(
     new Set([
-      'id',
+      ...primaryKey,
       ...fields.map((f) => f.name),
       ...fields.flatMap((f) => (f.mapPoint ? [f.mapPoint.latitudeField, f.mapPoint.longitudeField] : [])),
     ]),

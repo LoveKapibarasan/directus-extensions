@@ -15,6 +15,13 @@ export interface PaymentLocation {
   longitude: number | null;
   is_public: boolean;
   operator_id: number | null;
+  is_private: boolean;
+  listed_at: string | null;
+  vehicle_size: string | null;
+  access_type: string | null;
+  has_occupancy_sensor: boolean | null;
+  opening_hours: string | null;
+  additional_info: string | null;
 }
 
 export const paymentLocationSchema = z.object({
@@ -29,6 +36,13 @@ export const paymentLocationSchema = z.object({
   longitude: z.number().nullable().optional(),
   is_public: z.boolean().default(true),
   operator_id: z.number().nullable().optional(),
+  is_private: z.boolean().default(false),
+  listed_at: z.string().nullable().optional(),
+  vehicle_size: z.enum(['small', 'medium', 'large', 'xl']).nullable().optional(),
+  access_type: z.enum(['open', 'gated', 'barrier', 'private_driveway']).nullable().optional(),
+  has_occupancy_sensor: z.boolean().nullable().optional(),
+  opening_hours: z.string().max(255).nullable().optional(),
+  additional_info: z.string().max(2000).nullable().optional(),
 });
 
 export const paymentLocationColumns: ResourceColumn<PaymentLocation>[] = [
@@ -42,6 +56,12 @@ export const paymentLocationColumns: ResourceColumn<PaymentLocation>[] = [
     header: 'locations.public',
     render: (r, t) => (r.is_public ? t('common.yes') : t('common.no')),
   },
+  {
+    key: 'is_private',
+    header: 'locations.private',
+    render: (r, t) => (r.is_private ? t('common.yes') : t('common.no')),
+  },
+  { key: 'listed_at', header: 'locations.listedAt' },
 ];
 
 export const paymentLocationFields: ResourceFormField[] = [
@@ -59,6 +79,33 @@ export const paymentLocationFields: ResourceFormField[] = [
     mapPoint: { latitudeField: 'latitude', longitudeField: 'longitude' },
   },
   { name: 'is_public', label: 'locations.public', type: 'checkbox' },
+  { name: 'listed_at', label: 'locations.listedAt', type: 'datetime-local' },
+  { name: 'is_private', label: 'locations.private', type: 'checkbox' },
+  {
+    name: 'vehicle_size',
+    label: 'locations.vehicleSize',
+    type: 'select',
+    options: [
+      { labelKey: 'locations.vehicleSizeSmall', value: 'small' },
+      { labelKey: 'locations.vehicleSizeMedium', value: 'medium' },
+      { labelKey: 'locations.vehicleSizeLarge', value: 'large' },
+      { labelKey: 'locations.vehicleSizeXl', value: 'xl' },
+    ],
+  },
+  {
+    name: 'access_type',
+    label: 'locations.accessType',
+    type: 'select',
+    options: [
+      { labelKey: 'locations.accessOpen', value: 'open' },
+      { labelKey: 'locations.accessGated', value: 'gated' },
+      { labelKey: 'locations.accessBarrier', value: 'barrier' },
+      { labelKey: 'locations.accessPrivateDriveway', value: 'private_driveway' },
+    ],
+  },
+  { name: 'has_occupancy_sensor', label: 'locations.hasOccupancySensor', type: 'checkbox' },
+  { name: 'opening_hours', label: 'locations.openingHours' },
+  { name: 'additional_info', label: 'locations.additionalInfo' },
   {
     name: 'operator_id',
     label: 'locations.operator',

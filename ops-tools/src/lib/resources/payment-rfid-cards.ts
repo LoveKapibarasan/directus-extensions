@@ -18,6 +18,9 @@ export interface PaymentRfidCard {
   delivery_city: string;
   delivery_postal_code: string;
   delivery_country: string;
+  created_at: string;
+  blocked_at: string | null;
+  expires_at: string | null;
 }
 
 export const paymentRfidCardSchema = z.object({
@@ -35,6 +38,10 @@ export const paymentRfidCardSchema = z.object({
   delivery_city: z.string().min(1),
   delivery_postal_code: z.string().min(1),
   delivery_country: z.string().default('DE'),
+  // NOT NULL with no DB default — the payments backend sets it in Python.
+  created_at: z.string().min(1),
+  blocked_at: z.string().nullable().optional(),
+  expires_at: z.string().nullable().optional(),
 });
 
 export const paymentRfidCardColumns: ResourceColumn<PaymentRfidCard>[] = [
@@ -43,6 +50,7 @@ export const paymentRfidCardColumns: ResourceColumn<PaymentRfidCard>[] = [
   { key: 'membership_number', header: 'rfidCards.membershipNumberColumn' },
   { key: 'status', header: 'rfidCards.status' },
   { key: 'rfid_uid', header: 'rfidCards.rfidUidColumn' },
+  { key: 'created_at', header: 'common.createdAt' },
 ];
 
 export const paymentRfidCardFields: ResourceFormField[] = [
@@ -79,4 +87,7 @@ export const paymentRfidCardFields: ResourceFormField[] = [
   { name: 'delivery_city', label: 'rfidCards.deliveryCity' },
   { name: 'delivery_postal_code', label: 'rfidCards.deliveryPostalCode' },
   { name: 'delivery_country', label: 'rfidCards.deliveryCountry' },
+  { name: 'created_at', label: 'common.createdAt', type: 'datetime-local' },
+  { name: 'blocked_at', label: 'rfidCards.blockedAt', type: 'datetime-local' },
+  { name: 'expires_at', label: 'rfidCards.expiresAt', type: 'datetime-local' },
 ];

@@ -10,6 +10,7 @@ export interface PaymentEvse {
   station_id: string;
   tenant_id: string;
   location_id: number | null;
+  reservable: boolean;
 }
 
 export const paymentEvseSchema = z.object({
@@ -19,6 +20,7 @@ export const paymentEvseSchema = z.object({
   station_id: z.string().min(1),
   tenant_id: z.string().min(1),
   location_id: z.number().nullable().optional(),
+  reservable: z.boolean().default(false),
 });
 
 export const paymentEvseColumns: ResourceColumn<PaymentEvse>[] = [
@@ -27,12 +29,20 @@ export const paymentEvseColumns: ResourceColumn<PaymentEvse>[] = [
   { key: 'station_id', header: 'evses.stationId' },
   { key: 'status', header: 'evses.status' },
   { key: 'tenant_id', header: 'evses.tenantColumn' },
+  {
+    key: 'reservable',
+    header: 'evses.reservable',
+    render: (r, t) => (r.reservable ? t('common.yes') : t('common.no')),
+  },
 ];
 
 export const paymentEvseFields: ResourceFormField[] = [
   { name: 'evse_id', label: 'evses.evseIdLabel' },
   { name: 'ocpp_evse_id', label: 'evses.ocppEvseId', type: 'number' },
   { name: 'status', label: 'evses.status' },
+  // Plain text, not a relation: payment_evses mirrors every CitrineOS
+  // station, including ones never registered in payment_stations, and the
+  // relation select only stores numeric ids.
   { name: 'station_id', label: 'evses.stationId' },
   { name: 'tenant_id', label: 'evses.tenantIdLabel' },
   {
@@ -41,4 +51,5 @@ export const paymentEvseFields: ResourceFormField[] = [
     type: 'relation',
     relation: { resource: 'payment_locations', optionLabel: 'name' },
   },
+  { name: 'reservable', label: 'evses.reservable', type: 'checkbox' },
 ];

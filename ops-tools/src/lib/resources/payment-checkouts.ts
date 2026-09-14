@@ -16,6 +16,11 @@ export interface PaymentCheckout {
   payment_status: string | null;
   payment_error: string | null;
   billing_email: string | null;
+  created_at: string | null;
+  payment_status_at: string | null;
+  receipt_language: string | null;
+  start_method: string | null;
+  host_card_id: number | null;
 }
 
 // Note: authorization_amount_cents is in CENTS — a different unit from
@@ -37,14 +42,23 @@ export const paymentCheckoutSchema = z.object({
     .optional(),
   payment_error: z.string().nullable().optional(),
   billing_email: z.string().nullable().optional(),
+  payment_status_at: z.string().nullable().optional(),
+  receipt_language: z.string().max(5).nullable().optional(),
+  start_method: z
+    .enum(['app', 'rfid', 'scan_and_charge', 'plug_and_charge', 'terminal'])
+    .nullable()
+    .optional(),
+  host_card_id: z.number().nullable().optional(),
 });
 
 export const paymentCheckoutColumns: ResourceColumn<PaymentCheckout>[] = [
   { key: 'id', header: 'common.id' },
+  { key: 'created_at', header: 'common.createdAt' },
   { key: 'payment_intent_id', header: 'checkouts.paymentIntentColumn' },
   { key: 'authorization_amount_cents', header: 'checkouts.authAmountCentsColumn' },
   { key: 'final_price', header: 'checkouts.finalPrice' },
   { key: 'payment_status', header: 'checkouts.statusColumn' },
+  { key: 'start_method', header: 'checkouts.startMethod' },
   { key: 'billing_email', header: 'checkouts.billingEmail' },
 ];
 
@@ -68,7 +82,29 @@ export const paymentCheckoutFields: ResourceFormField[] = [
       { labelKey: 'checkouts.statusAuthorizationReleased', value: 'authorization_released' },
     ],
   },
+  { name: 'payment_status_at', label: 'checkouts.paymentStatusAt', type: 'datetime-local' },
   { name: 'payment_error', label: 'checkouts.paymentError' },
+  {
+    name: 'start_method',
+    label: 'checkouts.startMethod',
+    type: 'select',
+    options: [
+      { labelKey: 'checkouts.startMethodApp', value: 'app' },
+      { labelKey: 'checkouts.startMethodRfid', value: 'rfid' },
+      { labelKey: 'checkouts.startMethodScanAndCharge', value: 'scan_and_charge' },
+      { labelKey: 'checkouts.startMethodPlugAndCharge', value: 'plug_and_charge' },
+      { labelKey: 'checkouts.startMethodTerminal', value: 'terminal' },
+    ],
+  },
+  {
+    // Only id + label are fetched for the options — a host card's id_token
+    // (the credential the card presents) never reaches the browser.
+    name: 'host_card_id',
+    label: 'checkouts.hostCard',
+    type: 'relation',
+    relation: { resource: 'payment_host_cards', optionLabel: 'label' },
+  },
+  { name: 'receipt_language', label: 'checkouts.receiptLanguage' },
   {
     name: 'user_id',
     label: 'checkouts.user',

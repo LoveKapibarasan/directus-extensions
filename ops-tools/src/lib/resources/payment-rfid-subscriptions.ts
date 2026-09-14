@@ -12,6 +12,8 @@ export interface PaymentRfidSubscription {
   cancel_at_period_end: boolean;
   current_period_start: string | null;
   current_period_end: string | null;
+  created_at: string;
+  cancelled_at: string | null;
 }
 
 export const paymentRfidSubscriptionSchema = z.object({
@@ -23,6 +25,9 @@ export const paymentRfidSubscriptionSchema = z.object({
   cancel_at_period_end: z.boolean().default(false),
   current_period_start: z.string().nullable().optional(),
   current_period_end: z.string().nullable().optional(),
+  // NOT NULL with no DB default — the payments backend sets it in Python.
+  created_at: z.string().min(1),
+  cancelled_at: z.string().nullable().optional(),
 });
 
 export const paymentRfidSubscriptionColumns: ResourceColumn<PaymentRfidSubscription>[] = [
@@ -35,6 +40,7 @@ export const paymentRfidSubscriptionColumns: ResourceColumn<PaymentRfidSubscript
     header: 'rfidSubscriptions.cancelAtPeriodEnd',
     render: (r, t) => (r.cancel_at_period_end ? t('common.yes') : t('common.no')),
   },
+  { key: 'created_at', header: 'common.createdAt' },
 ];
 
 export const paymentRfidSubscriptionFields: ResourceFormField[] = [
@@ -67,4 +73,6 @@ export const paymentRfidSubscriptionFields: ResourceFormField[] = [
   { name: 'current_period_end', label: 'rfidSubscriptions.currentPeriodEnd', type: 'datetime-local' },
   { name: 'stripe_subscription_id', label: 'rfidSubscriptions.stripeSubscriptionId' },
   { name: 'stripe_checkout_session_id', label: 'rfidSubscriptions.stripeCheckoutSessionId' },
+  { name: 'created_at', label: 'common.createdAt', type: 'datetime-local' },
+  { name: 'cancelled_at', label: 'rfidSubscriptions.cancelledAt', type: 'datetime-local' },
 ];

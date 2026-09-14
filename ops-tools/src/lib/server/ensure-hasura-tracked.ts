@@ -1,4 +1,4 @@
-import { resources } from '@lib/resources';
+import { PAYMENT_TABLES } from '@lib/paymentTables';
 
 const HASURA_SOURCE = 'default';
 const SCHEMA = 'public';
@@ -57,7 +57,7 @@ export async function ensurePaymentTablesTracked(): Promise<void> {
       (source?.tables ?? []).map((t) => `${t.table.schema}.${t.table.name}`),
     );
 
-    const expected = resources.map((r) => r.name as string);
+    const expected: readonly string[] = PAYMENT_TABLES;
     const missing = expected.filter((name) => !tracked.has(`${SCHEMA}.${name}`));
     if (missing.length === 0) return;
 
