@@ -4,15 +4,32 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Banknote,
+  BellRing,
   Building2,
+  CalendarClock,
   CreditCard,
   ExternalLink,
   FileSpreadsheet,
+  Flag,
   IdCard,
+  ImageIcon,
+  KeyRound,
+  Link2,
+  Mail,
   MapPin,
+  Megaphone,
+  Package,
+  Palette,
   Percent,
   Plug,
+  Radio,
+  ScrollText,
+  Server,
   ShieldCheck,
+  ShoppingCart,
+  Smartphone,
+  Star,
+  Ticket,
   Users,
   Wallet,
   Zap,
@@ -39,6 +56,7 @@ const groups: NavGroup[] = [
     groupKey: 'group.locations',
     items: [
       { href: '/locations', labelKey: 'nav.locations', icon: <MapPin className={size} /> },
+      { href: '/location-photos', labelKey: 'nav.locationPhotos', icon: <ImageIcon className={size} /> },
       { href: '/evses', labelKey: 'nav.evses', icon: <Zap className={size} /> },
       { href: '/connectors', labelKey: 'nav.connectors', icon: <Plug className={size} /> },
     ],
@@ -59,8 +77,27 @@ const groups: NavGroup[] = [
     ],
   },
   {
+    groupKey: 'group.reservations',
+    items: [
+      { href: '/reservations', labelKey: 'nav.reservations', icon: <CalendarClock className={size} /> },
+    ],
+  },
+  {
     groupKey: 'group.users',
-    items: [{ href: '/users', labelKey: 'nav.users', icon: <Users className={size} /> }],
+    items: [
+      { href: '/users', labelKey: 'nav.users', icon: <Users className={size} /> },
+      {
+        href: '/user-notification-settings',
+        labelKey: 'nav.userNotificationSettings',
+        icon: <BellRing className={size} />,
+      },
+      {
+        href: '/user-security-credentials',
+        labelKey: 'nav.userSecurityCredentials',
+        icon: <KeyRound className={size} />,
+      },
+      { href: '/push-devices', labelKey: 'nav.pushDevices', icon: <Smartphone className={size} /> },
+    ],
   },
   {
     groupKey: 'group.subscriptions',
@@ -75,10 +112,51 @@ const groups: NavGroup[] = [
     ],
   },
   {
-    groupKey: 'group.operators',
+    groupKey: 'group.hosts',
     items: [
       { href: '/operators', labelKey: 'nav.operators', icon: <Building2 className={size} /> },
       { href: '/operator-infos', labelKey: 'nav.operatorInfos', icon: <Building2 className={size} /> },
+      { href: '/stations', labelKey: 'nav.stations', icon: <Server className={size} /> },
+      { href: '/station-readers', labelKey: 'nav.stationReaders', icon: <Radio className={size} /> },
+      {
+        href: '/station-connection-attempts',
+        labelKey: 'nav.stationConnectionAttempts',
+        icon: <ScrollText className={size} />,
+      },
+      { href: '/host-cards', labelKey: 'nav.hostCards', icon: <IdCard className={size} /> },
+      { href: '/host-invites', labelKey: 'nav.hostInvites', icon: <Mail className={size} /> },
+      { href: '/invoice-branding', labelKey: 'nav.invoiceBranding', icon: <Palette className={size} /> },
+    ],
+  },
+  {
+    groupKey: 'group.shop',
+    items: [
+      { href: '/shop-products', labelKey: 'nav.shopProducts', icon: <Package className={size} /> },
+      { href: '/shop-product-photos', labelKey: 'nav.shopProductPhotos', icon: <ImageIcon className={size} /> },
+      {
+        href: '/shop-product-relations',
+        labelKey: 'nav.shopProductRelations',
+        icon: <Link2 className={size} />,
+      },
+      { href: '/shop-orders', labelKey: 'nav.shopOrders', icon: <ShoppingCart className={size} /> },
+      { href: '/shop-partner-ads', labelKey: 'nav.shopPartnerAds', icon: <Megaphone className={size} /> },
+    ],
+  },
+  {
+    groupKey: 'group.reviews',
+    items: [
+      { href: '/charger-reviews', labelKey: 'nav.chargerReviews', icon: <Star className={size} /> },
+      { href: '/review-reports', labelKey: 'nav.reviewReports', icon: <Flag className={size} /> },
+    ],
+  },
+  {
+    groupKey: 'group.system',
+    items: [
+      {
+        href: '/processed-stripe-events',
+        labelKey: 'nav.processedStripeEvents',
+        icon: <Ticket className={size} />,
+      },
     ],
   },
   {

@@ -1,7 +1,9 @@
 import type { ResourceProps } from '@refinedev/core';
 
 // Grouped by domain to match citrineos-operator-ui's page layout. Each
-// payment_* table is its own Refine resource with list/create/edit routes.
+// payment_* table is its own Refine resource with list/create/edit routes —
+// except read-only system/audit tables (list only) and the few whose rows
+// can't be created or addressed from here (see the comments on each).
 export const resources: ResourceProps[] = [
   {
     name: 'payment_locations',
@@ -9,6 +11,13 @@ export const resources: ResourceProps[] = [
     create: '/locations/new',
     edit: '/locations/:id/edit',
     meta: { label: 'Locations', group: 'Locations' },
+  },
+  {
+    name: 'payment_location_photos',
+    list: '/location-photos',
+    create: '/location-photos/new',
+    edit: '/location-photos/:id/edit',
+    meta: { label: 'Location Photos', group: 'Locations' },
   },
   {
     name: 'payment_evses',
@@ -46,11 +55,34 @@ export const resources: ResourceProps[] = [
     meta: { label: 'Meter Value History', group: 'Payments' },
   },
   {
+    name: 'payment_reservations',
+    list: '/reservations',
+    create: '/reservations/new',
+    edit: '/reservations/:id/edit',
+    meta: { label: 'Reservations', group: 'Reservations' },
+  },
+  {
     name: 'payment_users',
     list: '/users',
     create: '/users/new',
     edit: '/users/:id/edit',
     meta: { label: 'Users', group: 'Users' },
+  },
+  {
+    // Keyed by user_id, and the user's own consent — read-only.
+    name: 'payment_user_notification_settings',
+    list: '/user-notification-settings',
+    meta: { label: 'Notification Settings', group: 'Users' },
+  },
+  {
+    name: 'payment_user_security_credentials',
+    list: '/user-security-credentials',
+    meta: { label: 'Security Credentials', group: 'Users' },
+  },
+  {
+    name: 'payment_push_devices',
+    list: '/push-devices',
+    meta: { label: 'Push Devices', group: 'Users' },
   },
   {
     name: 'payment_subscription_plans',
@@ -78,13 +110,107 @@ export const resources: ResourceProps[] = [
     list: '/operators',
     create: '/operators/new',
     edit: '/operators/:id/edit',
-    meta: { label: 'Operators', group: 'Operators' },
+    meta: { label: 'Operators', group: 'Hosts' },
   },
   {
     name: 'payment_operator_infos',
     list: '/operator-infos',
     create: '/operator-infos/new',
     edit: '/operator-infos/:id/edit',
-    meta: { label: 'Operator Infos', group: 'Operators' },
+    meta: { label: 'Operator Infos', group: 'Hosts' },
+  },
+  {
+    name: 'payment_stations',
+    list: '/stations',
+    create: '/stations/new',
+    edit: '/stations/:id/edit',
+    meta: { label: 'Stations', group: 'Hosts' },
+  },
+  {
+    name: 'payment_station_readers',
+    list: '/station-readers',
+    create: '/station-readers/new',
+    edit: '/station-readers/:id/edit',
+    meta: { label: 'Station Readers', group: 'Hosts' },
+  },
+  {
+    name: 'payment_station_connection_attempts',
+    list: '/station-connection-attempts',
+    meta: { label: 'Connection Attempts', group: 'Hosts' },
+  },
+  {
+    // No create: id_token (required) is never exposed in ops-tools.
+    name: 'payment_host_cards',
+    list: '/host-cards',
+    edit: '/host-cards/:id/edit',
+    meta: { label: 'Host Cards', group: 'Hosts' },
+  },
+  {
+    name: 'payment_host_invites',
+    list: '/host-invites',
+    create: '/host-invites/new',
+    edit: '/host-invites/:id/edit',
+    meta: { label: 'Host Invites', group: 'Hosts' },
+  },
+  {
+    name: 'payment_invoice_branding',
+    list: '/invoice-branding',
+    create: '/invoice-branding/new',
+    edit: '/invoice-branding/:id/edit',
+    meta: { label: 'Invoice Branding', group: 'Hosts' },
+  },
+  {
+    name: 'payment_shop_products',
+    list: '/shop-products',
+    create: '/shop-products/new',
+    edit: '/shop-products/:id/edit',
+    meta: { label: 'Products', group: 'Shop' },
+  },
+  {
+    name: 'payment_shop_product_photos',
+    list: '/shop-product-photos',
+    create: '/shop-product-photos/new',
+    edit: '/shop-product-photos/:id/edit',
+    meta: { label: 'Product Photos', group: 'Shop' },
+  },
+  {
+    // Composite primary key, no `id` — list + create only.
+    name: 'payment_shop_product_relations',
+    list: '/shop-product-relations',
+    create: '/shop-product-relations/new',
+    meta: { label: 'Product Relations', group: 'Shop' },
+  },
+  {
+    name: 'payment_shop_orders',
+    list: '/shop-orders',
+    create: '/shop-orders/new',
+    edit: '/shop-orders/:id/edit',
+    meta: { label: 'Orders', group: 'Shop' },
+  },
+  {
+    name: 'payment_shop_partner_ads',
+    list: '/shop-partner-ads',
+    create: '/shop-partner-ads/new',
+    edit: '/shop-partner-ads/:id/edit',
+    meta: { label: 'Partner Ads', group: 'Shop' },
+  },
+  {
+    name: 'payment_charger_reviews',
+    list: '/charger-reviews',
+    create: '/charger-reviews/new',
+    edit: '/charger-reviews/:id/edit',
+    meta: { label: 'Charger Reviews', group: 'Reviews' },
+  },
+  {
+    name: 'payment_review_reports',
+    list: '/review-reports',
+    create: '/review-reports/new',
+    edit: '/review-reports/:id/edit',
+    meta: { label: 'Review Reports', group: 'Reviews' },
+  },
+  {
+    name: 'payment_processed_stripe_events',
+    list: '/processed-stripe-events',
+    meta: { label: 'Processed Stripe Events', group: 'System' },
   },
 ];

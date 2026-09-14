@@ -28,6 +28,37 @@ See `.env.local.example` for the full variable list. `HASURA_ADMIN_SECRET` and
 uses. `KEYCLOAK_CLIENT_SECRET` is the `internal` client's secret in Keycloak
 realm `AI-Charge-Technologies` — same client Operator-UI uses.
 
+## Payments schema
+
+Version 1.3.0 tracks the citrineos-payment v1.3.0 payments schema (payments
+migration `0043`): every one of its 31 `payment_*` tables has a screen,
+defined in `src/lib/resources/*.ts` and registered in
+`src/lib/resources/index.ts`. The full table list lives in
+`src/lib/paymentTables.ts`.
+
+Most tables get list/create/edit. The exceptions:
+
+- **Read-only lists** — system/audit data written by the payments backend or
+  owned by the user: `payment_processed_stripe_events`,
+  `payment_push_devices`, `payment_station_connection_attempts`,
+  `payment_user_security_credentials`, `payment_user_notification_settings`.
+- **List + edit, no create/delete** — `payment_host_cards` (see below).
+- **List + create only** — `payment_shop_product_relations`, which has a
+  composite primary key and no `id` column. Refine's Hasura data provider
+  addresses rows by `id` only, so edit/delete aren't possible there (the same
+  applies to `payment_user_notification_settings`, keyed by `user_id`).
+
+Sensitive columns are never queried, listed or editable: station
+`credential_hash`, host card `id_token`, push device `token`/`p256dh`/`auth`,
+checkout `guest_session_hash`, and the Keycloak `credential_id` of security
+credentials. Photos and logos are shown as storage object keys (metadata
+only), never as file contents.
+
+Writes here go straight to the database. Changes that the payments backend
+normally mirrors into CitrineOS — provisioning or revoking a station,
+revoking a host card, an RFID card's status — are **not** synced to
+CitrineOS when made from ops-tools.
+
 ## Google Maps
 
 The Locations page (list and create/edit) has a Google Maps integration
@@ -47,7 +78,7 @@ components fall back to a plain message and the manual coordinate inputs
 still work.
 
 On boot (`src/instrumentation.ts`), the app checks Hasura's metadata for the
-`payment_*` tables it needs and tracks any that exist in Postgres but aren't
+`payment_*` tables it needs (`PAYMENT_TABLES` in `src/lib/paymentTables.ts`) and tracks any that exist in Postgres but aren't
 yet exposed over GraphQL (`src/lib/server/ensure-hasura-tracked.ts`). This
 covers a freshly migrated payments DB that hasn't had its tables tracked in
 the Hasura console yet — otherwise every `payment_*` query 500s with

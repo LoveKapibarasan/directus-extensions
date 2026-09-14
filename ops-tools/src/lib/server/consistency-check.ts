@@ -4,6 +4,9 @@ import { hasuraQuery } from '@lib/server/hasura';
 
 interface CoreChargingStation {
   id: number;
+  // Since per-host CitrineOS tenants (#512) the same OCPP identity can exist
+  // under more than one tenant, so stations are keyed by (tenantId, name).
+  tenantId: number | null;
   ocppConnectionName: string | null;
 }
 
@@ -41,6 +44,14 @@ interface PaymentEvse {
   evse_id: string;
   ocpp_evse_id: number;
   station_id: string;
+  tenant_id: string;
+}
+
+interface PaymentStation {
+  id: number;
+  station_id: string;
+  tenant_id: string;
+  state: string;
 }
 
 interface PaymentConnector {
@@ -107,6 +118,12 @@ export type Finding =
       core: { id: number; ocppConnectionName: string | null };
       coreEvseCount: number;
       paymentEvseCount: number;
+    }
+  | {
+      entity: 'station';
+      kind: 'missing_in_core';
+      message: string;
+      payment: { id: number; station_id: string; tenant_id: string };
     };
 
 export interface ConsistencyReport {
@@ -118,13 +135,14 @@ export interface ConsistencyReport {
 
 const QUERY = `
   query {
-    ChargingStations { id ocppConnectionName }
+    ChargingStations { id tenantId ocppConnectionName }
     Evses { id stationId evseId evseTypeId }
     Connectors { id stationId evseId connectorId evseTypeConnectorId tariffId }
     Locations { id name }
     Tariffs { id }
     payment_locations { id location_id name }
-    payment_evses { id evse_id ocpp_evse_id station_id }
+    payment_evses { id evse_id ocpp_evse_id station_id tenant_id }
+    payment_stations { id station_id tenant_id state }
     payment_connectors { id connector_id evse_id tariff_id }
     payment_tariffs { id }
   }
@@ -140,6 +158,7 @@ interface QueryResult {
   payment_evses: PaymentEvse[];
   payment_connectors: PaymentConnector[];
   payment_tariffs: { id: number }[];
+  payment_stations: PaymentStation[];
 }
 
 export async function runConsistencyCheck(): Promise<ConsistencyReport> {
@@ -282,36 +301,62 @@ export async function runConsistencyCheck(): Promise<ConsistencyReport> {
   }
 
   // ─── ChargingStations: rollup of core Evse count vs payment_evses linked
-  // via station_id (there's no dedicated payment_charging_stations table) ──
+  // via (tenant_id, station_id). Keyed by tenant too: one OCPP identity can
+  // exist under several core tenants (e.g. after a station moved to its host
+  // organisation's tenant), and each has its own EVSEs. ─────────────────────
+  const stationKey = (tenantId: string | number | null, name: string) => `${tenantId ?? ''}:${name}`;
   const coreEvseCountByStation = new Map<number, number>();
   for (const e of data.Evses) {
     if (e.stationId == null) continue;
     coreEvseCountByStation.set(e.stationId, (coreEvseCountByStation.get(e.stationId) ?? 0) + 1);
   }
-  const paymentEvseCountByStationName = new Map<string, number>();
+  const paymentEvseCountByStationKey = new Map<string, number>();
   for (const e of data.payment_evses) {
-    paymentEvseCountByStationName.set(
-      e.station_id,
-      (paymentEvseCountByStationName.get(e.station_id) ?? 0) + 1,
-    );
+    const key = stationKey(e.tenant_id, e.station_id);
+    paymentEvseCountByStationKey.set(key, (paymentEvseCountByStationKey.get(key) ?? 0) + 1);
   }
 
   for (const station of data.ChargingStations) {
     const coreCount = coreEvseCountByStation.get(station.id) ?? 0;
     const paymentCount =
       station.ocppConnectionName != null
-        ? (paymentEvseCountByStationName.get(station.ocppConnectionName) ?? 0)
+        ? (paymentEvseCountByStationKey.get(stationKey(station.tenantId, station.ocppConnectionName)) ?? 0)
         : 0;
     if (coreCount !== paymentCount) {
       findings.push({
         entity: 'station',
         kind: 'evse_count_mismatch',
-        message: `ChargingStation '${station.ocppConnectionName ?? station.id}' has ${coreCount} core EVSE(s) but ${paymentCount} payment_evses row(s).`,
+        message: `ChargingStation '${station.ocppConnectionName ?? station.id}' (tenant ${station.tenantId ?? '?'}) has ${coreCount} core EVSE(s) but ${paymentCount} payment_evses row(s).`,
         core: { id: station.id, ocppConnectionName: station.ocppConnectionName },
         coreEvseCount: coreCount,
         paymentEvseCount: paymentCount,
       });
     }
+  }
+
+  // ─── Registered stations (payment_stations) ↔ core ChargingStations ─────
+  // Provisioning creates the core station in the host's tenant, so every
+  // non-revoked registration should have one under the same (tenant, name).
+  // Revoked ones are deregistered from CitrineOS on purpose and are skipped.
+  const coreStationKeys = new Set(
+    data.ChargingStations.filter((s) => s.ocppConnectionName).map((s) =>
+      stationKey(s.tenantId, s.ocppConnectionName as string),
+    ),
+  );
+  for (const registered of data.payment_stations) {
+    if (registered.state === 'revoked') continue;
+    if (coreStationKeys.has(stationKey(registered.tenant_id, registered.station_id))) continue;
+    const otherTenants = data.ChargingStations.filter(
+      (s) => s.ocppConnectionName === registered.station_id,
+    ).map((s) => s.tenantId);
+    findings.push({
+      entity: 'station',
+      kind: 'missing_in_core',
+      message:
+        `payment_stations '${registered.station_id}' (${registered.state}, tenant ${registered.tenant_id}) has no core ChargingStation in that tenant` +
+        (otherTenants.length ? ` — it exists under tenant(s) ${otherTenants.join(', ')}.` : '.'),
+      payment: { id: registered.id, station_id: registered.station_id, tenant_id: registered.tenant_id },
+    });
   }
 
   const summary: Record<Finding['entity'], number> = {
@@ -329,6 +374,7 @@ export async function runConsistencyCheck(): Promise<ConsistencyReport> {
     caveats: [
       "Locations are matched by name only — core Location rows have no external/OCPP string id, so this can miss real matches (renamed locations) or false-match unrelated ones with the same name.",
       "Connector matching tries both core numbering schemes (OCPP1.6 connectorId and OCPP2.0.1 evseTypeConnectorId) since it's unclear which payment_connectors.connector_id is meant to track — verify matches before relying on them.",
+      "Stations are matched by (tenant, OCPP identity): core tenantId varies per host organisation, so the same identity under two tenants counts as two stations. Revoked payment_stations rows are not checked.",
       "payment_tariffs has no column referencing core Tariff — tariff consistency can only be checked indirectly, at the connector level (whether a tariff is assigned on both sides), not per-tariff.",
     ],
   };
