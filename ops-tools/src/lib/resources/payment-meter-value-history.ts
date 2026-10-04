@@ -7,6 +7,7 @@ export interface PaymentMeterValueHistory {
   checkout_id: number;
   recorded_at: string;
   kwh: number;
+  exported_kwh: number | null;
   power_kw: number | null;
 }
 
@@ -14,6 +15,7 @@ export const paymentMeterValueHistorySchema = z.object({
   checkout_id: z.number(),
   recorded_at: z.string().min(1),
   kwh: z.number(),
+  exported_kwh: z.number().nullable().optional(),
   power_kw: z.number().nullable().optional(),
 });
 
@@ -22,6 +24,7 @@ export const paymentMeterValueHistoryColumns: ResourceColumn<PaymentMeterValueHi
   { key: 'checkout_id', header: 'meterValueHistory.checkoutIdColumn' },
   { key: 'recorded_at', header: 'meterValueHistory.recordedAt' },
   { key: 'kwh', header: 'meterValueHistory.kwh' },
+  { key: 'exported_kwh', header: 'meterValueHistory.exportedKwh' },
   { key: 'power_kw', header: 'meterValueHistory.powerKw' },
 ];
 
@@ -34,5 +37,6 @@ export const paymentMeterValueHistoryFields: ResourceFormField[] = [
   },
   { name: 'recorded_at', label: 'meterValueHistory.recordedAt', type: 'datetime-local' },
   { name: 'kwh', label: 'meterValueHistory.kwh', type: 'number' },
+  { name: 'exported_kwh', label: 'meterValueHistory.exportedKwh', type: 'number' },
   { name: 'power_kw', label: 'meterValueHistory.powerKw', type: 'number' },
 ];

@@ -1,5 +1,5 @@
-// Every payment_* table in the citrineos-payment v1.3.0 schema (payments
-// migration 0043). ensure-hasura-tracked.ts tracks exactly these in Hasura.
+// Every payment_* table in the citrineos-payment v1.4 schema (payments
+// migration 0050). ensure-hasura-tracked.ts tracks exactly these in Hasura.
 export const PAYMENT_TABLES = [
   'payment_charger_reviews',
   'payment_checkouts',
@@ -13,6 +13,7 @@ export const PAYMENT_TABLES = [
   'payment_meter_value_history',
   'payment_operator_infos',
   'payment_operators',
+  'payment_point_entries',
   'payment_processed_stripe_events',
   'payment_push_devices',
   'payment_reservations',

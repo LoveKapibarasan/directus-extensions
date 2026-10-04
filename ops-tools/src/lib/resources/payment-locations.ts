@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ResourceColumn } from '@lib/components/crud/resource-table';
 import type { ResourceFormField } from '@lib/components/crud/resource-form';
+import { isTimeZone, openingHoursScheduleSchema } from '@lib/resources/opening-hours';
 
 export interface PaymentLocation {
   id: number;
@@ -20,7 +21,9 @@ export interface PaymentLocation {
   vehicle_size: string | null;
   access_type: string | null;
   has_occupancy_sensor: boolean | null;
-  opening_hours: string | null;
+  opening_hours_schedule: Record<string, { start: string; end: string }[] | null> | null;
+  opening_hours_note: string | null;
+  timezone: string | null;
   additional_info: string | null;
 }
 
@@ -41,7 +44,14 @@ export const paymentLocationSchema = z.object({
   vehicle_size: z.enum(['small', 'medium', 'large', 'xl']).nullable().optional(),
   access_type: z.enum(['open', 'gated', 'barrier', 'private_driveway']).nullable().optional(),
   has_occupancy_sensor: z.boolean().nullable().optional(),
-  opening_hours: z.string().max(255).nullable().optional(),
+  opening_hours_schedule: openingHoursScheduleSchema,
+  opening_hours_note: z.string().max(255).nullable().optional(),
+  timezone: z
+    .string()
+    .max(64)
+    .refine((v) => v === '' || isTimeZone(v), { message: 'An IANA time zone, e.g. Europe/Berlin.' })
+    .nullable()
+    .optional(),
   additional_info: z.string().max(2000).nullable().optional(),
 });
 
@@ -104,7 +114,9 @@ export const paymentLocationFields: ResourceFormField[] = [
     ],
   },
   { name: 'has_occupancy_sensor', label: 'locations.hasOccupancySensor', type: 'checkbox' },
-  { name: 'opening_hours', label: 'locations.openingHours' },
+  { name: 'opening_hours_schedule', label: 'locations.openingHoursSchedule', type: 'json' },
+  { name: 'opening_hours_note', label: 'locations.openingHoursNote' },
+  { name: 'timezone', label: 'locations.timezone' },
   { name: 'additional_info', label: 'locations.additionalInfo' },
   {
     name: 'operator_id',

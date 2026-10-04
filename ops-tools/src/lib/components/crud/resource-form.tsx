@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Controller } from 'react-hook-form';
 import { useForm } from '@refinedev/react-hook-form';
@@ -9,6 +10,7 @@ import type { z } from 'zod';
 import { Button } from '@lib/components/ui/button';
 import { Input } from '@lib/components/ui/input';
 import { Checkbox } from '@lib/components/ui/checkbox';
+import { Textarea } from '@lib/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@lib/components/ui/card';
 import {
   Select,
@@ -25,7 +27,7 @@ import type { TranslationKey } from '@lib/i18n/translations';
 export interface ResourceFormField {
   name: string;
   label: TranslationKey;
-  type?: 'text' | 'number' | 'datetime-local' | 'checkbox' | 'relation' | 'select' | 'map-point';
+  type?: 'text' | 'number' | 'datetime-local' | 'checkbox' | 'relation' | 'select' | 'map-point' | 'json';
   // For type: 'relation' — renders a searchable select backed by another resource.
   relation?: {
     resource: string;
@@ -158,6 +160,55 @@ function TextField({ field, control }: { field: ResourceFormField; control: any 
   );
 }
 
+// A jsonb column edited as text. The text is kept as typed so a half-written
+// document isn't reformatted under the cursor; the form value is the parsed
+// object, the raw string while it doesn't parse (for the schema to reject),
+// or null when empty.
+function JsonField({ field, control }: { field: ResourceFormField; control: any }) {
+  return (
+    <Controller
+      name={field.name}
+      control={control}
+      render={({ field: cf }) => <JsonTextarea id={field.name} value={cf.value} onChange={cf.onChange} onBlur={cf.onBlur} />}
+    />
+  );
+}
+
+function JsonTextarea({
+  id,
+  value,
+  onChange,
+  onBlur,
+}: {
+  id: string;
+  value: unknown;
+  onChange: (v: unknown) => void;
+  onBlur: () => void;
+}) {
+  const [text, setText] = useState(() =>
+    value == null ? '' : typeof value === 'string' ? value : JSON.stringify(value, null, 2),
+  );
+  return (
+    <Textarea
+      id={id}
+      className="font-mono"
+      rows={8}
+      value={text}
+      onBlur={onBlur}
+      onChange={(e) => {
+        const raw = e.target.value;
+        setText(raw);
+        if (raw.trim() === '') return onChange(null);
+        try {
+          onChange(JSON.parse(raw));
+        } catch {
+          onChange(raw);
+        }
+      }}
+    />
+  );
+}
+
 export function ResourceForm({
   resource,
   id,
@@ -235,6 +286,7 @@ export function ResourceForm({
                 <Label htmlFor={f.name}>{t(f.label)}</Label>
                 {f.type === 'relation' && <RelationField field={f} control={control} />}
                 {f.type === 'select' && <StaticSelectField field={f} control={control} />}
+                {f.type === 'json' && <JsonField field={f} control={control} />}
                 {f.type === 'map-point' && (
                   <MapPointField
                     control={control}

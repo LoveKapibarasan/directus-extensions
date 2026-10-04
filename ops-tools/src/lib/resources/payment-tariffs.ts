@@ -5,6 +5,9 @@ import type { ResourceFormField } from '@lib/components/crud/resource-form';
 export interface PaymentTariff {
   id: number;
   price_kwh: number | null;
+  // What the host pays the driver per kWh fed back into the grid on a
+  // bidirectional session. Null: export is not paid for.
+  price_kwh_export: number | null;
   price_minute: number | null;
   price_session: number | null;
   currency: string;
@@ -26,6 +29,7 @@ export const paymentTariffSchema = z.object({
   authorization_amount: z.number(),
   payment_fee: z.number(),
   price_kwh: z.number().nullable().optional(),
+  price_kwh_export: z.number().nullable().optional(),
   price_minute: z.number().nullable().optional(),
   price_session: z.number().nullable().optional(),
   stripe_price_id: z.string().nullable().optional(),
@@ -39,6 +43,7 @@ export const paymentTariffColumns: ResourceColumn<PaymentTariff>[] = [
   { key: 'id', header: 'common.id' },
   { key: 'currency', header: 'tariffs.currencyColumn' },
   { key: 'price_kwh', header: 'tariffs.priceKwhColumn' },
+  { key: 'price_kwh_export', header: 'tariffs.priceKwhExportColumn' },
   { key: 'price_minute', header: 'tariffs.priceMinuteColumn' },
   { key: 'tax_rate', header: 'tariffs.taxRate' },
   {
@@ -59,6 +64,7 @@ export const paymentTariffFields: ResourceFormField[] = [
   },
   { name: 'payment_fee', label: 'tariffs.paymentFee', type: 'number' },
   { name: 'price_kwh', label: 'tariffs.priceKwhLabel', type: 'number' },
+  { name: 'price_kwh_export', label: 'tariffs.priceKwhExportLabel', type: 'number' },
   { name: 'price_minute', label: 'tariffs.priceMinuteLabel', type: 'number' },
   { name: 'price_session', label: 'tariffs.priceSession', type: 'number' },
   { name: 'stripe_price_id', label: 'tariffs.stripePriceId' },

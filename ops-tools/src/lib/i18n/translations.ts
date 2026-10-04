@@ -212,7 +212,6 @@ const en = {
   'locations.accessBarrier': 'Barrier',
   'locations.accessPrivateDriveway': 'Private driveway',
   'locations.hasOccupancySensor': 'Has occupancy sensor',
-  'locations.openingHours': 'Opening hours',
   'locations.additionalInfo': 'Additional info',
 
   // Meter value history
@@ -586,6 +585,23 @@ const en = {
   // Processed Stripe events
   'processedStripeEvents.stripeEventId': 'Stripe event ID',
   'processedStripeEvents.eventType': 'Event type',
+  'nav.pointEntries': 'Point Entries',
+  'tariffs.priceKwhExportColumn': 'Export/kWh',
+  'tariffs.priceKwhExportLabel': 'Price per exported kWh (paid to the driver)',
+  'meterValueHistory.exportedKwh': 'Exported kWh',
+  'checkouts.transactionExportedKwh': 'Exported kWh',
+  'checkouts.transactionLastExportMeterReading': 'Last export meter reading (kWh)',
+  'connectionAttempts.disconnectReason': 'Disconnect reason',
+  'locations.openingHoursSchedule': 'Opening hours (weekly schedule, JSON)',
+  'locations.openingHoursNote': 'Opening hours note (shown to drivers, not enforced)',
+  'locations.timezone': 'Time zone (IANA, e.g. Europe/Berlin)',
+  'pointEntries.userIdColumn': 'User ID',
+  'pointEntries.checkoutIdColumn': 'Checkout ID',
+  'pointEntries.amountCents': 'Amount (cents)',
+  'pointEntries.currency': 'Currency',
+  'pointEntries.reason': 'Reason',
+  'pointEntries.reasonExportCredit': 'Export credit',
+  'pointEntries.reasonSessionPayment': 'Spent on a session',
 } as const;
 
 const ja: Record<keyof typeof en, string> = {
@@ -796,7 +812,6 @@ const ja: Record<keyof typeof en, string> = {
   'locations.accessBarrier': '遮断機あり',
   'locations.accessPrivateDriveway': '私有の車道',
   'locations.hasOccupancySensor': '在車センサーあり',
-  'locations.openingHours': '営業時間',
   'locations.additionalInfo': '補足情報',
 
   // Meter value history（メーター値履歴）
@@ -1170,6 +1185,23 @@ const ja: Record<keyof typeof en, string> = {
   // Processed Stripe events（処理済み Stripe イベント）
   'processedStripeEvents.stripeEventId': 'Stripe イベントID',
   'processedStripeEvents.eventType': 'イベント種別',
+  'nav.pointEntries': 'ポイント履歴',
+  'tariffs.priceKwhExportColumn': '逆潮流/kWh',
+  'tariffs.priceKwhExportLabel': '逆潮流 kWh あたりの単価（ドライバーに支払う）',
+  'meterValueHistory.exportedKwh': '逆潮流電力量（kWh）',
+  'checkouts.transactionExportedKwh': '逆潮流電力量（kWh）',
+  'checkouts.transactionLastExportMeterReading': '最終逆潮流メーター値（kWh）',
+  'connectionAttempts.disconnectReason': '切断理由',
+  'locations.openingHoursSchedule': '営業時間（週間スケジュール、JSON）',
+  'locations.openingHoursNote': '営業時間の補足（ドライバーに表示、判定には使わない）',
+  'locations.timezone': 'タイムゾーン（IANA、例: Europe/Berlin）',
+  'pointEntries.userIdColumn': 'ユーザー ID',
+  'pointEntries.checkoutIdColumn': 'チェックアウト ID',
+  'pointEntries.amountCents': '金額（セント）',
+  'pointEntries.currency': '通貨',
+  'pointEntries.reason': '理由',
+  'pointEntries.reasonExportCredit': '逆潮流クレジット',
+  'pointEntries.reasonSessionPayment': '充電で使用',
 };
 
 const de: Record<keyof typeof en, string> = {
@@ -1380,7 +1412,6 @@ const de: Record<keyof typeof en, string> = {
   'locations.accessBarrier': 'Mit Schranke',
   'locations.accessPrivateDriveway': 'Private Einfahrt',
   'locations.hasOccupancySensor': 'Mit Belegungssensor',
-  'locations.openingHours': 'Öffnungszeiten',
   'locations.additionalInfo': 'Zusätzliche Informationen',
 
   // Meter value history (Zählerstandshistorie)
@@ -1755,6 +1786,23 @@ const de: Record<keyof typeof en, string> = {
   // Processed Stripe events (Verarbeitete Stripe-Ereignisse)
   'processedStripeEvents.stripeEventId': 'Stripe-Ereignis-ID',
   'processedStripeEvents.eventType': 'Ereignistyp',
+  'nav.pointEntries': 'Punktebuchungen',
+  'tariffs.priceKwhExportColumn': 'Einspeisung/kWh',
+  'tariffs.priceKwhExportLabel': 'Preis pro eingespeister kWh (an den Fahrer)',
+  'meterValueHistory.exportedKwh': 'Eingespeiste kWh',
+  'checkouts.transactionExportedKwh': 'Eingespeiste kWh',
+  'checkouts.transactionLastExportMeterReading': 'Letzter Einspeise-Zählerstand (kWh)',
+  'connectionAttempts.disconnectReason': 'Trennungsgrund',
+  'locations.openingHoursSchedule': 'Öffnungszeiten (Wochenplan, JSON)',
+  'locations.openingHoursNote': 'Hinweis zu Öffnungszeiten (für Fahrer sichtbar, nicht durchgesetzt)',
+  'locations.timezone': 'Zeitzone (IANA, z. B. Europe/Berlin)',
+  'pointEntries.userIdColumn': 'Benutzer-ID',
+  'pointEntries.checkoutIdColumn': 'Checkout-ID',
+  'pointEntries.amountCents': 'Betrag (Cent)',
+  'pointEntries.currency': 'Währung',
+  'pointEntries.reason': 'Grund',
+  'pointEntries.reasonExportCredit': 'Einspeisegutschrift',
+  'pointEntries.reasonSessionPayment': 'Für Ladevorgang verwendet',
 };
 
 export type TranslationKey = keyof typeof en;

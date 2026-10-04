@@ -11,6 +11,9 @@ const QUERY = `
     ) {
       id
       stationId
+      ChargingStation {
+        ocppConnectionName
+      }
       transactionId
       chargingState
       totalKwh
@@ -44,6 +47,7 @@ export async function GET(req: NextRequest) {
   const sheet = workbook.addWorksheet('Transactions');
   sheet.columns = [
     { header: 'ID', key: 'id' },
+    { header: 'Station', key: 'station' },
     { header: 'Station ID', key: 'stationId' },
     { header: 'Transaction ID', key: 'transactionId' },
     { header: 'Charging State', key: 'chargingState' },
@@ -54,7 +58,15 @@ export async function GET(req: NextRequest) {
     { header: 'Stopped Reason', key: 'stoppedReason' },
     { header: 'Is Active', key: 'isActive' },
   ];
-  sheet.addRows(data.Transactions);
+  // Since CitrineOS v2 stationId is the ChargingStations row id, a number
+  // nobody recognises; the name the charger connects with is what operators
+  // know a station by.
+  sheet.addRows(
+    data.Transactions.map(({ ChargingStation, ...t }) => ({
+      ...t,
+      station: ChargingStation?.ocppConnectionName ?? null,
+    })),
+  );
 
   const buffer = await workbook.xlsx.writeBuffer();
   return new NextResponse(buffer as any, {

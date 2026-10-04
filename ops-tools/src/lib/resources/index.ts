@@ -55,6 +55,11 @@ export const resources: ResourceProps[] = [
     meta: { label: 'Meter Value History', group: 'Payments' },
   },
   {
+    name: 'payment_point_entries',
+    list: '/point-entries',
+    meta: { label: 'Point Entries', group: 'Payments' },
+  },
+  {
     name: 'payment_reservations',
     list: '/reservations',
     create: '/reservations/new',
