@@ -29,7 +29,9 @@ export default defineConfig({
     command: 'pnpm run build && pnpm run start',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    // Includes `next build`, which takes 3-4 minutes on the Gitea runner;
+    // at 180s every run timed out before a single test started.
+    timeout: 600_000,
     env: {
       NEXT_PUBLIC_AUTH_PROVIDER: 'generic',
       NEXT_PUBLIC_ADMIN_EMAIL: 'admin@example.com',
