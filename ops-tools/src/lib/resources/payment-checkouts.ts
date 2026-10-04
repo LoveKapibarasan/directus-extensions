@@ -12,6 +12,8 @@ export interface PaymentCheckout {
   transaction_start_time: string | null;
   transaction_end_time: string | null;
   transaction_kwh: number | null;
+  transaction_exported_kwh: number | null;
+  transaction_last_export_meter_reading: number | null;
   final_price: number | null;
   payment_status: string | null;
   payment_error: string | null;
@@ -35,6 +37,8 @@ export const paymentCheckoutSchema = z.object({
   transaction_start_time: z.string().nullable().optional(),
   transaction_end_time: z.string().nullable().optional(),
   transaction_kwh: z.number().nullable().optional(),
+  transaction_exported_kwh: z.number().nullable().optional(),
+  transaction_last_export_meter_reading: z.number().nullable().optional(),
   final_price: z.number().nullable().optional(),
   payment_status: z
     .enum(['captured', 'cancelled_below_threshold', 'capture_failed', 'authorization_released'])
@@ -126,4 +130,10 @@ export const paymentCheckoutFields: ResourceFormField[] = [
   { name: 'transaction_start_time', label: 'checkouts.transactionStart', type: 'datetime-local' },
   { name: 'transaction_end_time', label: 'checkouts.transactionEnd', type: 'datetime-local' },
   { name: 'transaction_kwh', label: 'checkouts.transactionKwh', type: 'number' },
+  { name: 'transaction_exported_kwh', label: 'checkouts.transactionExportedKwh', type: 'number' },
+  {
+    name: 'transaction_last_export_meter_reading',
+    label: 'checkouts.transactionLastExportMeterReading',
+    type: 'number',
+  },
 ];

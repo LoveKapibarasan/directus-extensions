@@ -7,6 +7,7 @@ import {
   BellRing,
   Building2,
   CalendarClock,
+  Coins,
   CreditCard,
   ExternalLink,
   FileSpreadsheet,
@@ -74,6 +75,7 @@ const groups: NavGroup[] = [
         labelKey: 'nav.meterValueHistory',
         icon: <Zap className={size} />,
       },
+      { href: '/point-entries', labelKey: 'nav.pointEntries', icon: <Coins className={size} /> },
     ],
   },
   {

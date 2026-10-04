@@ -9,6 +9,8 @@ export interface PaymentStationConnectionAttempt {
   security_profile: number | null;
   outcome: string;
   rejection_reason: string | null;
+  // Set when outcome is 'disconnected': normal | timeout | network_error | replaced.
+  disconnect_reason: string | null;
   occurred_at: string;
 }
 
@@ -20,4 +22,5 @@ export const paymentStationConnectionAttemptColumns: ResourceColumn<PaymentStati
   { key: 'security_profile', header: 'connectionAttempts.securityProfile' },
   { key: 'outcome', header: 'connectionAttempts.outcome' },
   { key: 'rejection_reason', header: 'connectionAttempts.rejectionReason' },
+  { key: 'disconnect_reason', header: 'connectionAttempts.disconnectReason' },
 ];

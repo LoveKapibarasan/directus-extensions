@@ -30,8 +30,8 @@ realm `AI-Charge-Technologies` — same client Operator-UI uses.
 
 ## Payments schema
 
-Version 1.3.0 tracks the citrineos-payment v1.3.0 payments schema (payments
-migration `0043`): every one of its 31 `payment_*` tables has a screen,
+Version 1.4.0 tracks the citrineos-payment v1.4 payments schema (payments
+migration `0050`): every one of its 32 `payment_*` tables has a screen,
 defined in `src/lib/resources/*.ts` and registered in
 `src/lib/resources/index.ts`. The full table list lives in
 `src/lib/paymentTables.ts`.
@@ -41,6 +41,7 @@ Most tables get list/create/edit. The exceptions:
 - **Read-only lists** — system/audit data written by the payments backend or
   owned by the user: `payment_processed_stripe_events`,
   `payment_push_devices`, `payment_station_connection_attempts`,
+  `payment_point_entries` (the points ledger; a balance is its sum),
   `payment_user_security_credentials`, `payment_user_notification_settings`.
 - **List + edit, no create/delete** — `payment_host_cards` (see below).
 - **List + create only** — `payment_shop_product_relations`, which has a
@@ -50,7 +51,7 @@ Most tables get list/create/edit. The exceptions:
 
 Sensitive columns are never queried, listed or editable: station
 `credential_hash`, host card `id_token`, push device `token`/`p256dh`/`auth`,
-checkout `guest_session_hash`, and the Keycloak `credential_id` of security
+checkout `guest_session_hash` and `access_key_hash`, and the Keycloak `credential_id` of security
 credentials. Photos and logos are shown as storage object keys (metadata
 only), never as file contents.
 
