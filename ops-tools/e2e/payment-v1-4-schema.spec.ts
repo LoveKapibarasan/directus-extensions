@@ -24,7 +24,7 @@ test.describe('payment v1.4 schema', () => {
     await login(page);
 
     await page.getByRole('link', { name: 'Point Entries' }).click();
-    await expect(page).toHaveURL(/\/point-entries$/);
+    await expect(page).toHaveURL(/\/point-entries(\?|$)/);
     await expect(page.getByRole('columnheader', { name: 'Amount (cents)' })).toBeVisible();
     await expect(page.getByRole('cell', { name: 'Export credit' })).toBeVisible();
     await expect(page.getByRole('cell', { name: 'Spent on a session' })).toBeVisible();

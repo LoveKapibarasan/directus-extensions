@@ -1,14 +1,25 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import Link from 'next/link';
 import { LogOut } from 'lucide-react';
 import { MainMenu } from '@lib/components/main-menu';
 import { LanguageSwitcher } from '@lib/components/language-switcher';
 import { Button } from '@lib/components/ui/button';
 import { useTranslation } from '@lib/i18n/locale-provider';
+import { Providers } from '@lib/providers';
 
 export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense>
+      <Providers>
+        <Shell>{children}</Shell>
+      </Providers>
+    </Suspense>
+  );
+}
+
+function Shell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
 
   return (

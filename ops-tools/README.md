@@ -93,18 +93,38 @@ fails startup — errors are logged and swallowed.
 `payment_checkouts` only, grouped by the day their charging ended in
 Europe/Berlin, the way payment's host earnings count them. The same numbers
 switch between a period total, per location, per operator, per day and per
-month, and each view downloads as Excel. Amounts in different currencies are
+month, each as a table or a chart, and each view downloads as Excel. Amounts in different currencies are
 never added together. The platform fee is recomputed from
 `STRIPE_PLATFORM_FEE_CENTS` (capped at each session's price), i.e. today's fee
 applied to the whole period, not what Stripe actually withheld. Aggregation:
 `src/lib/server/sales.ts`; API: `GET /api/sales`.
 
-## Link previews
+## Sign-in and link previews
 
 Unauthenticated requests are redirected to `/login`, a public page rendered
 with the root layout's OGP/Twitter metadata (`public/og.png`, absolute URLs
-from `NEXTAUTH_URL`), which forwards browsers to NextAuth's sign-in page.
-Without it a shared link previewed as NextAuth's bare sign-in page.
+from `NEXTAUTH_URL`). With Keycloak it goes straight on to Keycloak, so
+someone already signed in to Operator UI (same realm and client) comes back
+without a password or a click; with the generic provider it forwards to
+NextAuth's sign-in page. The app's providers (session, Refine, i18n) are in
+`(authenticated)/layout.tsx`, not the root layout: a SessionProvider on
+`/login` asks `/api/auth/session` while sign-in asks for a CSRF token, both
+set the CSRF cookie, and NextAuth rejects the sign-in.
+
+## Consistency check
+
+`/consistency-check` pairs every citrineos-core row with its payment_* row and
+shows the pair column by column — consistent ones too, with a filter for
+problems only. Each row names the core and payment row (table and id), the
+join it was paired on, and each compared column pair with both values; the
+columns that disagree are marked. Pairing (`src/lib/server/consistency-mapping.ts`):
+
+| | core | payment |
+|---|---|---|
+| Station | `ChargingStations (tenantId, ocppConnectionName)` | `payment_evses` / `payment_stations (tenant_id, station_id)` |
+| EVSE | `Evses.evseId` | `payment_evses.evse_id` |
+| Connector | `Connectors` on the paired EVSE | `payment_connectors` on the paired EVSE |
+| Location | `Locations.id` | `payment_locations.location_id` |
 
 ## i18n
 
@@ -125,13 +145,9 @@ go through translation keys, not literal strings. `ResourceColumn.header`,
 that's deliberate, to keep new resources/pages from silently reintroducing
 English-only text.
 
-The one deliberate exception: `/consistency-check`'s per-finding messages
-and caveats (`src/lib/server/consistency-check.ts`) are generated
-server-side as full sentences mixing fixed wording with dynamic data (table
-names, DB values) — translating those would mean restructuring the report
-to emit structured data instead of pre-built strings. Only that page's
-static chrome (headings, buttons, table headers, finding-kind badges) is
-localized.
+`/consistency-check` has no untranslated text left: the report is structured
+data (table and column names, values), and only those identifiers are shown
+as they are.
 
 To translate a new string: add the same key to all three locale objects in
 `translations.ts` (TypeScript errors if one is missing) and reference it via

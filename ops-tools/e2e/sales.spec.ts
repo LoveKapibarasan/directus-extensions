@@ -62,3 +62,30 @@ test('sales: an API error is shown, not an empty table', async ({ page }) => {
   await page.goto('/sales');
   await expect(page.getByText('Hasura unreachable')).toBeVisible();
 });
+
+test('sales: the chart view shows figures for the total and bars per group and metric', async ({ page }) => {
+  await page.route('**/api/sales?*', (route) => {
+    const view = new URL(route.request().url()).searchParams.get('view') ?? 'summary';
+    return route.fulfill({ json: { rows: ROWS[view] } });
+  });
+  await login(page);
+  await page.goto('/sales');
+  await page.getByRole('tab', { name: 'Chart' }).click();
+
+  const figures = page.getByTestId('sales-figures');
+  await expect(figures.getByText('€42.50')).toBeVisible();
+  await expect(figures.getByText('31.5')).toBeVisible();
+
+  await page.getByRole('tab', { name: 'By location' }).click();
+  const chart = page.getByTestId('sales-chart');
+  await expect(chart.locator('.recharts-bar-rectangle')).toHaveCount(2);
+  await expect(chart.getByText('Burgthann')).toBeVisible();
+
+  await page.getByRole('tab', { name: 'By day' }).click();
+  await page.getByRole('tab', { name: 'Sessions' }).click();
+  await expect(chart.locator('.recharts-bar-rectangle')).toHaveCount(1);
+  await expect(chart.getByText('2026-10-01')).toBeVisible();
+
+  await page.getByRole('tab', { name: 'Table' }).click();
+  await expect(page.getByRole('cell', { name: '2026-10-01' })).toBeVisible();
+});
