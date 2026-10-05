@@ -87,6 +87,25 @@ the Hasura console yet — otherwise every `payment_*` query 500s with
 them by hand. It's a no-op once everything's already tracked, and never
 fails startup — errors are logged and swallowed.
 
+## Sales
+
+`/sales` (Tools) totals what citrineos-payment took: captured
+`payment_checkouts` only, grouped by the day their charging ended in
+Europe/Berlin, the way payment's host earnings count them. The same numbers
+switch between a period total, per location, per operator, per day and per
+month, and each view downloads as Excel. Amounts in different currencies are
+never added together. The platform fee is recomputed from
+`STRIPE_PLATFORM_FEE_CENTS` (capped at each session's price), i.e. today's fee
+applied to the whole period, not what Stripe actually withheld. Aggregation:
+`src/lib/server/sales.ts`; API: `GET /api/sales`.
+
+## Link previews
+
+Unauthenticated requests are redirected to `/login`, a public page rendered
+with the root layout's OGP/Twitter metadata (`public/og.png`, absolute URLs
+from `NEXTAUTH_URL`), which forwards browsers to NextAuth's sign-in page.
+Without it a shared link previewed as NextAuth's bare sign-in page.
+
 ## i18n
 
 UI strings are looked up from `src/lib/i18n/translations.ts` (`en`, `ja`,

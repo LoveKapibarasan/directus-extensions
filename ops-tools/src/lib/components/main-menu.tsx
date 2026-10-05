@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Banknote,
+  BarChart3,
   BellRing,
   Building2,
   CalendarClock,
@@ -164,6 +165,7 @@ const groups: NavGroup[] = [
   {
     groupKey: 'group.tools',
     items: [
+      { href: '/sales', labelKey: 'nav.sales', icon: <BarChart3 className={size} /> },
       {
         href: '/export-transactions',
         labelKey: 'nav.exportTransactions',
