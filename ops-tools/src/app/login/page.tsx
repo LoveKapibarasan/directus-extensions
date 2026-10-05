@@ -1,23 +1,28 @@
-// Where the middleware sends a visitor without a session. It exists so that
-// the first page a link-preview crawler sees is rendered with the root layout's
-// OGP metadata; NextAuth's built-in sign-in page carries none. Browsers move on
-// to that sign-in page at once.
-export default async function LoginRedirectPage({
+import { AutoSignIn } from './auto-sign-in';
+
+// Where the middleware sends a visitor without a session. Rendered with the
+// root layout's OGP metadata, so a link-preview crawler sees those tags rather
+// than NextAuth's bare sign-in page.
+//
+// With Keycloak the browser goes straight to Keycloak from here: whoever is
+// already signed in to Operator UI (same realm, same `internal` client) comes
+// straight back without a password, instead of stopping at NextAuth's
+// "Sign in with Keycloak" page first.
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(await searchParams)) {
-    if (key === 'callbackUrl' || key === 'error') params.set(key, Array.isArray(value) ? value[0] : (value ?? ''));
-  }
-  const target = `/api/auth/signin${params.size ? `?${params}` : ''}`;
-  return (
-    <>
-      <meta httpEquiv="refresh" content={`0;url=${target}`} />
-      <p className="p-6 text-sm text-muted-foreground">
-        <a href={target}>Sign in</a>
-      </p>
-    </>
-  );
+  const params = await searchParams;
+  const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+  const callbackUrl = first(params.callbackUrl) || '/';
+  const error = first(params.error);
+  const fallback = `/api/auth/signin?${new URLSearchParams({
+    callbackUrl,
+    ...(error ? { error } : {}),
+  })}`;
+  // Read per request on the server: the image is built without the deployment's
+  // NEXT_PUBLIC_* values, so the client bundle can't be asked.
+  const provider = process.env.NEXT_PUBLIC_AUTH_PROVIDER || 'generic';
+  return <AutoSignIn keycloak={provider === 'keycloak'} callbackUrl={callbackUrl} fallback={fallback} />;
 }

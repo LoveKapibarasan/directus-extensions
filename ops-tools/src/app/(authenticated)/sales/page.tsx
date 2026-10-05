@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useTranslation } from '@lib/i18n/locale-provider';
 import type { TranslationKey } from '@lib/i18n/translations';
 import { SALES_VIEWS, type SalesRow, type SalesView } from '@lib/server/sales';
+import { SalesChart, type SalesMetric } from '@lib/components/sales/sales-chart';
 
 const VIEW_LABEL: Record<SalesView, TranslationKey> = {
   summary: 'sales.viewSummary',
@@ -38,6 +39,8 @@ export default function SalesPage() {
   const [from, setFrom] = useState(firstOfMonth);
   const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
   const [view, setView] = useState<SalesView>('summary');
+  const [display, setDisplay] = useState<'table' | 'chart'>('table');
+  const [metric, setMetric] = useState<SalesMetric>('revenue');
   const [rows, setRows] = useState<SalesRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -120,6 +123,23 @@ export default function SalesPage() {
               ))}
             </TabsList>
           </Tabs>
+          <div className="flex flex-wrap gap-3">
+            <Tabs value={display} onValueChange={(v) => setDisplay(v as 'table' | 'chart')}>
+              <TabsList>
+                <TabsTrigger value="table">{t('sales.displayTable')}</TabsTrigger>
+                <TabsTrigger value="chart">{t('sales.displayChart')}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {display === 'chart' && view !== 'summary' && (
+              <Tabs value={metric} onValueChange={(v) => setMetric(v as SalesMetric)}>
+                <TabsList>
+                  <TabsTrigger value="revenue">{t('sales.revenue')}</TabsTrigger>
+                  <TabsTrigger value="sessions">{t('sales.sessions')}</TabsTrigger>
+                  <TabsTrigger value="kwh">{t('sales.kwh')}</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
+          </div>
           <p className="text-muted-foreground text-xs">{t('sales.note')}</p>
         </CardContent>
       </Card>
@@ -127,7 +147,44 @@ export default function SalesPage() {
       {error && <p className="text-destructive text-sm">{error}</p>}
       {loading && !rows && <p className="text-muted-foreground text-sm">{t('common.loading')}</p>}
       {rows && rows.length === 0 && <p className="text-muted-foreground text-sm">{t('sales.empty')}</p>}
-      {rows && rows.length > 0 && (
+      {rows && rows.length > 0 && display === 'chart' && view === 'summary' && (
+        <div data-testid="sales-figures" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {rows.flatMap((r) =>
+            [
+              [t('sales.revenue'), money(r.revenueCents, r.currency)],
+              [t('sales.sessions'), String(r.sessions)],
+              [t('sales.kwh'), energy(r.kwh)],
+              [t('sales.exportedKwh'), energy(r.exportedKwh)],
+              [t('sales.platformFee'), money(r.platformFeeCents, r.currency)],
+            ].map(([label, figure]) => (
+              <Card key={`${r.currency}-${label}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-muted-foreground text-sm font-normal">
+                    {label}
+                    {rows.length > 1 ? ` (${r.currency || '—'})` : ''}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-2xl font-semibold">{figure}</CardContent>
+              </Card>
+            )),
+          )}
+        </div>
+      )}
+      {rows && rows.length > 0 && display === 'chart' && view !== 'summary' && (
+        <Card>
+          <CardContent className="pt-6">
+            <SalesChart
+              rows={rows}
+              view={view}
+              metric={metric}
+              groupLabel={groupLabel}
+              metricLabel={t(metric === 'revenue' ? 'sales.revenue' : metric === 'sessions' ? 'sales.sessions' : 'sales.kwh')}
+              locale={locale}
+            />
+          </CardContent>
+        </Card>
+      )}
+      {rows && rows.length > 0 && display === 'table' && (
         <Table>
           <TableHeader>
             <TableRow>

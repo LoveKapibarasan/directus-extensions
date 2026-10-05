@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { Providers } from '@lib/providers';
 import './globals.css';
 
 const TITLE = 'CitrineOS Ops Tools';
@@ -32,9 +30,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Suspense>
-          <Providers>{children}</Providers>
-        </Suspense>
+        {/* Providers (session, Refine, i18n) live in (authenticated)/layout.tsx:
+            /login must not have a SessionProvider asking /api/auth/session
+            while it signs in -- both requests would set a CSRF cookie. */}
+        {children}
       </body>
     </html>
   );
