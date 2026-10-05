@@ -17,24 +17,34 @@ test.describe('consistency check', () => {
     await expect(page.getByText(/Couldn't run the check/)).toBeVisible({ timeout: 15000 });
   });
 
-  test('lists every mapping, marks the column that disagrees, and filters to problems', async ({ page }) => {
+  test('compares field by field: column names once in the header, values per row, mismatches marked', async ({ page }) => {
     await page.route('**/api/consistency-check', (route) => route.fulfill({ json: buildConsistencyReport(consistencyData) }));
     await login(page);
     await page.goto('/consistency-check');
 
     const evses = page.getByTestId('mappings-evse');
-    await expect(evses.getByText('Matched on: Evses.evseId = payment_evses.evse_id')).toBeVisible();
+    await expect(evses).toContainText('Matched on: Evses.evseId = payment_evses.evse_id');
+    // Column names appear in the header, once.
+    const header = evses.locator('thead');
+    await expect(header).toContainText('Tenant');
+    await expect(header).toContainText('ChargingStations.tenantId (via Evses.stationId)');
+    await expect(header).toContainText('payment_evses.tenant_id');
+    await expect(evses.locator('tbody')).not.toContainText('payment_evses.tenant_id');
+
+    // Problems first.
+    await expect(evses.locator('tr[data-status]').first()).toHaveAttribute('data-status', 'mismatch');
+
     const ok = evses.locator('tr[data-status]').filter({ hasText: 'DE*AIC*E*TMP*0001' });
     await expect(ok.getByText('Consistent')).toBeVisible();
-    await expect(ok.getByText('Evses #31')).toBeVisible();
-    await expect(ok.getByText('payment_evses #1')).toBeVisible();
+    await expect(ok).toContainText('Evses #31');
+    await expect(ok).toContainText('payment_evses #1');
+    await expect(ok.locator('td[data-equal="false"]')).toHaveCount(0);
 
     const wrong = evses.locator('tr[data-status]').filter({ hasText: 'DE*AIC*E*TMP*0049' });
     await expect(wrong.getByText('Column mismatch')).toBeVisible();
-    const cell = wrong.locator('tr[data-equal="false"]');
+    const cell = wrong.locator('td[data-equal="false"]');
     await expect(cell).toHaveCount(1);
-    await expect(cell).toContainText('ChargingStations.tenantId (via Evses.stationId) = 2');
-    await expect(cell).toContainText('payment_evses.tenant_id = 1');
+    await expect(cell).toHaveText('21');
     await expect(wrong.getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/evses/8/edit');
 
     const missing = evses.locator('tr[data-status]').filter({ hasText: 'DE*AIC*E*TMP*0090' });
@@ -46,6 +56,11 @@ test.describe('consistency check', () => {
     await page.getByRole('tab', { name: 'Problems only' }).click();
     await expect(evses.locator('tr[data-status]').filter({ hasText: 'DE*AIC*E*TMP*0001' })).toHaveCount(0);
     await expect(evses.locator('tr[data-status]').filter({ hasText: 'DE*AIC*E*TMP*0049' })).toHaveCount(1);
+
+    // The notes are folded away until asked for.
+    await expect(page.getByText(/separate id spaces/)).toBeHidden();
+    await page.getByText('Notes (5)').click();
+    await expect(page.getByText(/separate id spaces/)).toBeVisible();
   });
 
   test('the create link pre-fills the EVSE form, tenant included', async ({ page }) => {

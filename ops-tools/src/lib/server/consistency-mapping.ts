@@ -85,7 +85,21 @@ export interface ConsistencyData {
 export type Entity = 'station' | 'evse' | 'connector' | 'location';
 export type Status = 'match' | 'mismatch' | 'missing_in_payments' | 'missing_in_core';
 
+/**
+ * What a column pair compares, the same for every row of an entity -- the
+ * page shows one column per field and puts the column names in its header.
+ * 'key' is the pair the rows were joined on.
+ */
+export const FIELDS = {
+  station: ['evseCount', 'registration'],
+  evse: ['number', 'station', 'tenant', 'location'],
+  connector: ['number', 'tariff'],
+  location: ['name', 'address', 'city', 'postalCode', 'state', 'country'],
+} as const;
+export type Field = (typeof FIELDS)[keyof typeof FIELDS][number] | 'key';
+
 export interface ColumnPair {
+  field: Field;
   // Qualified columns, e.g. 'Evses.evseTypeId' and 'payment_evses.ocpp_evse_id'.
   // A derived value names its path: 'ChargingStations.ocppConnectionName (via Evses.stationId)'.
   core: string;
@@ -132,11 +146,18 @@ export interface ConsistencyReport {
 const text = (v: Value) => (v == null ? '' : String(v).trim().toLowerCase().replace(/\s+/g, ' '));
 const same = (a: Value, b: Value) => text(a) === text(b);
 
-function pair(core: string, payment: string, coreValue: Value, paymentValue: Value, equal = same(coreValue, paymentValue)): ColumnPair {
-  return { core, payment, coreValue, paymentValue, equal };
+function pair(
+  field: Field,
+  core: string,
+  payment: string,
+  coreValue: Value,
+  paymentValue: Value,
+  equal = same(coreValue, paymentValue),
+): ColumnPair {
+  return { field, core, payment, coreValue, paymentValue, equal };
 }
 function keyPair(core: string, payment: string, coreValue: Value, paymentValue: Value): ColumnPair {
-  return { core, payment, coreValue, paymentValue, equal: true, key: true };
+  return { field: 'key', core, payment, coreValue, paymentValue, equal: true, key: true };
 }
 const statusOf = (columns: ColumnPair[]): Status => (columns.every((c) => c.equal) ? 'match' : 'mismatch');
 
@@ -179,12 +200,12 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
     }
     const columns = [
       keyPair('Locations.id', 'payment_locations.location_id', core.id, p.location_id),
-      pair('Locations.name', 'payment_locations.name', core.name, p.name),
-      pair('Locations.address', 'payment_locations.address', core.address, p.address),
-      pair('Locations.city', 'payment_locations.city', core.city, p.city),
-      pair('Locations.postalCode', 'payment_locations.postal_code', core.postalCode, p.postal_code),
-      pair('Locations.state', 'payment_locations.state', core.state, p.state),
-      pair('Locations.country', 'payment_locations.country', core.country, p.country, sameCountry(core.country, p.country)),
+      pair('name', 'Locations.name', 'payment_locations.name', core.name, p.name),
+      pair('address', 'Locations.address', 'payment_locations.address', core.address, p.address),
+      pair('city', 'Locations.city', 'payment_locations.city', core.city, p.city),
+      pair('postalCode', 'Locations.postalCode', 'payment_locations.postal_code', core.postalCode, p.postal_code),
+      pair('state', 'Locations.state', 'payment_locations.state', core.state, p.state),
+      pair('country', 'Locations.country', 'payment_locations.country', core.country, p.country, sameCountry(core.country, p.country)),
     ];
     mappings.push({
       entity: 'location',
@@ -205,7 +226,7 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
       matchedOn: 'Locations.id = payment_locations.location_id',
       core: null,
       payment: { table: 'payment_locations', id: p.id },
-      columns: [pair('Locations.id', 'payment_locations.location_id', null, p.location_id, false)],
+      columns: [pair('key', 'Locations.id', 'payment_locations.location_id', null, p.location_id, false)],
     });
   }
 
@@ -223,7 +244,7 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
         matchedOn: 'Evses.evseId = payment_evses.evse_id',
         core: { table: 'Evses', id: core.id },
         payment: null,
-        columns: [pair('Evses.evseId', 'payment_evses.evse_id', core.evseId, null, false)],
+        columns: [pair('key', 'Evses.evseId', 'payment_evses.evse_id', core.evseId, null, false)],
       });
       continue;
     }
@@ -250,15 +271,17 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
     const pLocation = p.location_id != null ? paymentLocationById.get(p.location_id) : undefined;
     const columns = [
       keyPair('Evses.evseId', 'payment_evses.evse_id', core.evseId, p.evse_id),
-      pair('Evses.evseTypeId', 'payment_evses.ocpp_evse_id', core.evseTypeId, p.ocpp_evse_id),
+      pair('number', 'Evses.evseTypeId', 'payment_evses.ocpp_evse_id', core.evseTypeId, p.ocpp_evse_id),
       pair(
+        'station',
         'ChargingStations.ocppConnectionName (via Evses.stationId)',
         'payment_evses.station_id',
         station?.ocppConnectionName ?? null,
         p.station_id,
       ),
-      pair('ChargingStations.tenantId (via Evses.stationId)', 'payment_evses.tenant_id', station?.tenantId ?? null, p.tenant_id),
+      pair('tenant', 'ChargingStations.tenantId (via Evses.stationId)', 'payment_evses.tenant_id', station?.tenantId ?? null, p.tenant_id),
       pair(
+        'location',
         'ChargingStations.locationId (via Evses.stationId)',
         'payment_locations.location_id (via payment_evses.location_id)',
         station?.locationId ?? null,
@@ -284,7 +307,7 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
       matchedOn: 'Evses.evseId = payment_evses.evse_id',
       core: null,
       payment: { table: 'payment_evses', id: p.id },
-      columns: [pair('Evses.evseId', 'payment_evses.evse_id', null, p.evse_id, false)],
+      columns: [pair('key', 'Evses.evseId', 'payment_evses.evse_id', null, p.evse_id, false)],
     });
   }
 
@@ -313,7 +336,7 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
         matchedOn,
         core: null,
         payment: { table: 'payment_connectors', id: p.id },
-        columns: [pair('Evses.evseId', 'payment_evses.evse_id (via payment_connectors.evse_id)', null, pEvse?.evse_id ?? null, false)],
+        columns: [pair('key', 'Evses.evseId', 'payment_evses.evse_id (via payment_connectors.evse_id)', null, pEvse?.evse_id ?? null, false)],
       });
       continue;
     }
@@ -331,6 +354,7 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
         payment: { table: 'payment_connectors', id: p.id },
         columns: [
           pair(
+            'number',
             `Connectors.id / evseTypeConnectorId on Evses #${coreEvse.id}`,
             'payment_connectors.connector_id',
             candidates.map((c) => `${c.id} / ${c.evseTypeConnectorId}`).join(', '),
@@ -344,8 +368,8 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
     pairedCore.add(core.id);
     const columns = [
       keyPair('Evses.evseId (via Connectors.evseId)', 'payment_evses.evse_id (via payment_connectors.evse_id)', coreEvse.evseId, pEvse!.evse_id),
-      pair('Connectors.id | Connectors.evseTypeConnectorId', 'payment_connectors.connector_id', `${core.id} | ${core.evseTypeConnectorId}`, p.connector_id, byNumber(core)),
-      pair('Connectors.tariffId is set', 'payment_connectors.tariff_id is set', core.tariffId != null, p.tariff_id != null),
+      pair('number', 'Connectors.id | Connectors.evseTypeConnectorId', 'payment_connectors.connector_id', `${core.id} | ${core.evseTypeConnectorId}`, p.connector_id, byNumber(core)),
+      pair('tariff', 'Connectors.tariffId is set', 'payment_connectors.tariff_id is set', core.tariffId != null, p.tariff_id != null),
     ];
     mappings.push({
       entity: 'connector',
@@ -394,8 +418,8 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
     const reg = registered.get(k);
     const columns = [
       keyPair('ChargingStations.tenantId, ocppConnectionName', 'payment_evses / payment_stations (tenant_id, station_id)', `${s.tenantId}, ${s.ocppConnectionName}`, `${s.tenantId}, ${s.ocppConnectionName}`),
-      pair('count(Evses where stationId)', 'count(payment_evses where tenant_id, station_id)', coreEvseCount.get(s.id) ?? 0, paymentEvseCount.get(k) ?? 0),
-      pair('ChargingStations row', 'payment_stations.state', 'present', reg ? reg.state : null, true),
+      pair('evseCount', 'count(Evses where stationId)', 'count(payment_evses where tenant_id, station_id)', coreEvseCount.get(s.id) ?? 0, paymentEvseCount.get(k) ?? 0),
+      pair('registration', 'ChargingStations row', 'payment_stations.state', 'present', reg ? reg.state : null, true),
     ];
     mappings.push({
       entity: 'station',
@@ -418,7 +442,7 @@ export function buildConsistencyReport(data: ConsistencyData): ConsistencyReport
       core: null,
       payment: { table: 'payment_stations', id: reg.id },
       columns: [
-        pair('ChargingStations.tenantId', 'payment_stations.tenant_id', elsewhere.length ? elsewhere.join(', ') : null, reg.tenant_id, false),
+        pair('key', 'ChargingStations.tenantId', 'payment_stations.tenant_id', elsewhere.length ? elsewhere.join(', ') : null, reg.tenant_id, false),
       ],
     });
   }

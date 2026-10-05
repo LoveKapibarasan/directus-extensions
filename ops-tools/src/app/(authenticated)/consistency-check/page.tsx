@@ -2,13 +2,21 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Check, Pencil, Plus, RefreshCw, X } from 'lucide-react';
+import { Pencil, Plus, RefreshCw } from 'lucide-react';
 import { Button } from '@lib/components/ui/button';
 import { Badge } from '@lib/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@lib/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@lib/components/ui/tabs';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@lib/components/ui/table';
-import type { ConsistencyReport, Entity, Mapping, Status, Value } from '@lib/server/consistency-mapping';
+import {
+  FIELDS,
+  type ColumnPair,
+  type ConsistencyReport,
+  type Entity,
+  type Mapping,
+  type Status,
+  type Value,
+} from '@lib/server/consistency-mapping';
 import { useTranslation } from '@lib/i18n/locale-provider';
 import type { TranslationKey } from '@lib/i18n/translations';
 
@@ -26,6 +34,9 @@ const STATUS_VARIANT: Record<Status, 'success' | 'outline' | 'destructive'> = {
   missing_in_core: 'destructive',
 };
 
+// Problems first, consistent rows last.
+const STATUS_ORDER: Record<Status, number> = { mismatch: 0, missing_in_payments: 1, missing_in_core: 2, match: 3 };
+
 const ENTITIES: { entity: Entity; titleKey: TranslationKey; path: string }[] = [
   { entity: 'station', titleKey: 'consistencyCheck.stations', path: '/stations' },
   { entity: 'evse', titleKey: 'nav.evses', path: '/evses' },
@@ -33,7 +44,7 @@ const ENTITIES: { entity: Entity; titleKey: TranslationKey; path: string }[] = [
   { entity: 'location', titleKey: 'nav.locations', path: '/locations' },
 ];
 
-const show = (v: Value) => (v == null ? '∅' : String(v));
+const show = (v: Value) => (v == null || v === '' ? '∅' : String(v));
 
 function Action({ mapping, path }: { mapping: Mapping; path: string }) {
   const { t } = useTranslation();
@@ -59,6 +70,129 @@ function Action({ mapping, path }: { mapping: Mapping; path: string }) {
     );
   }
   return null;
+}
+
+/** One compared field: core value over payment value; red when they differ. */
+function ValueCell({ pair }: { pair: ColumnPair | undefined }) {
+  if (!pair) return <TableCell className="text-muted-foreground align-top">—</TableCell>;
+  return (
+    <TableCell
+      data-equal={pair.equal}
+      title={`${pair.core} = ${show(pair.coreValue)}\n${pair.payment} = ${show(pair.paymentValue)}`}
+      className={
+        pair.equal
+          ? 'align-top font-mono text-xs text-muted-foreground'
+          : 'align-top font-mono text-xs bg-destructive/10 text-destructive font-semibold'
+      }
+    >
+      <div>{show(pair.coreValue)}</div>
+      <div>{show(pair.paymentValue)}</div>
+    </TableCell>
+  );
+}
+
+function EntityCard({
+  entity,
+  titleKey,
+  path,
+  report,
+  problemsOnly,
+}: {
+  entity: Entity;
+  titleKey: TranslationKey;
+  path: string;
+  report: ConsistencyReport;
+  problemsOnly: boolean;
+}) {
+  const { t } = useTranslation();
+  const all = report.mappings.filter((m) => m.entity === entity);
+  const rows = (problemsOnly ? all.filter((m) => m.status !== 'match') : all)
+    .slice()
+    .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.label.localeCompare(b.label));
+  const fields = FIELDS[entity];
+  // The column names behind each field, from the first row that has them.
+  const columnsOf = (field: string) =>
+    all.flatMap((m) => m.columns).find((c) => c.field === field);
+  const counts = report.summary[entity];
+
+  return (
+    <Card data-testid={`mappings-${entity}`}>
+      <CardHeader>
+        <CardTitle className="flex flex-wrap items-center gap-2">
+          {t(titleKey)}
+          {(Object.keys(STATUS_LABEL) as Status[])
+            .filter((s) => counts[s] > 0)
+            .map((s) => (
+              <Badge key={s} variant={STATUS_VARIANT[s]}>
+                {t(STATUS_LABEL[s])} {counts[s]}
+              </Badge>
+            ))}
+        </CardTitle>
+        {all[0] && (
+          <p className="text-muted-foreground text-xs">
+            {t('consistencyCheck.matchedOn')}: <code>{all[0].matchedOn}</code>
+          </p>
+        )}
+      </CardHeader>
+      <CardContent>
+        {rows.length === 0 ? (
+          <p className="text-muted-foreground text-sm">
+            {all.length === 0 ? t('consistencyCheck.noRows') : t('consistencyCheck.noIssues')}
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-36">{t('consistencyCheck.status')}</TableHead>
+                <TableHead>{t('consistencyCheck.item')}</TableHead>
+                <TableHead>
+                  <div>{t('consistencyCheck.rows')}</div>
+                  <div className="text-[10px] font-normal text-muted-foreground">
+                    {t('consistencyCheck.coreOverPayment')}
+                  </div>
+                </TableHead>
+                {fields.map((f) => {
+                  const c = columnsOf(f);
+                  return (
+                    <TableHead key={f} className="align-bottom">
+                      <div>{t(`consistencyCheck.field.${entity}.${f}` as TranslationKey)}</div>
+                      {c && (
+                        <div className="font-mono text-[10px] font-normal text-muted-foreground">
+                          <div>{c.core}</div>
+                          <div>{c.payment}</div>
+                        </div>
+                      )}
+                    </TableHead>
+                  );
+                })}
+                <TableHead className="w-24" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((m) => (
+                <TableRow key={`${m.core?.id ?? '-'}:${m.payment?.id ?? '-'}:${m.label}`} data-status={m.status}>
+                  <TableCell className="align-top">
+                    <Badge variant={STATUS_VARIANT[m.status]}>{t(STATUS_LABEL[m.status])}</Badge>
+                  </TableCell>
+                  <TableCell className="align-top font-medium">{m.label}</TableCell>
+                  <TableCell className="align-top font-mono text-xs">
+                    <div>{m.core ? `${m.core.table} #${m.core.id}` : '—'}</div>
+                    <div>{m.payment ? `${m.payment.table} #${m.payment.id}` : '—'}</div>
+                  </TableCell>
+                  {fields.map((f) => (
+                    <ValueCell key={f} pair={m.columns.find((c) => c.field === f)} />
+                  ))}
+                  <TableCell className="align-top">
+                    <Action mapping={m} path={path} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function ConsistencyCheckPage() {
@@ -116,112 +250,26 @@ export default function ConsistencyCheckPage() {
 
       {report && (
         <>
-          <Card>
-            <CardContent className="pt-6 text-sm text-muted-foreground space-y-1">
-              <p>
+          <details className="rounded-md border px-4 py-3 text-sm text-muted-foreground">
+            <summary className="cursor-pointer select-none">
+              {t('consistencyCheck.notes', { count: report.caveats.length + 1 })}
+            </summary>
+            <ul className="mt-2 list-disc pl-5 space-y-1">
+              <li>
                 {t('consistencyCheck.tariffCountLine', {
                   core: report.tariffCounts.core,
                   payments: report.tariffCounts.payments,
                 })}
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                {report.caveats.map((c) => (
-                  <li key={c}>{t(c)}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+              </li>
+              {report.caveats.map((c) => (
+                <li key={c}>{t(c)}</li>
+              ))}
+            </ul>
+          </details>
 
-          {ENTITIES.map(({ entity, titleKey, path }) => {
-            const all = report.mappings.filter((m) => m.entity === entity);
-            const rows = filter === 'all' ? all : all.filter((m) => m.status !== 'match');
-            const counts = report.summary[entity];
-            return (
-              <Card key={entity} data-testid={`mappings-${entity}`}>
-                <CardHeader>
-                  <CardTitle className="flex flex-wrap items-center gap-2">
-                    {t(titleKey)}
-                    {(Object.keys(STATUS_LABEL) as Status[])
-                      .filter((s) => counts[s] > 0)
-                      .map((s) => (
-                        <Badge key={s} variant={STATUS_VARIANT[s]}>
-                          {t(STATUS_LABEL[s])} {counts[s]}
-                        </Badge>
-                      ))}
-                  </CardTitle>
-                  {all[0] && (
-                    <p className="text-muted-foreground text-xs font-mono">
-                      {t('consistencyCheck.matchedOn')}: {all[0].matchedOn}
-                    </p>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  {rows.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">
-                      {all.length === 0 ? t('consistencyCheck.noRows') : t('consistencyCheck.noIssues')}
-                    </p>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{t('consistencyCheck.status')}</TableHead>
-                          <TableHead>{t('consistencyCheck.item')}</TableHead>
-                          <TableHead>{t('consistencyCheck.coreRow')}</TableHead>
-                          <TableHead>{t('consistencyCheck.paymentRow')}</TableHead>
-                          <TableHead>{t('consistencyCheck.columns')}</TableHead>
-                          <TableHead className="w-24">{t('consistencyCheck.action')}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {rows.map((m) => (
-                          <TableRow key={`${m.core?.id ?? '-'}:${m.payment?.id ?? '-'}:${m.label}`} data-status={m.status}>
-                            <TableCell className="align-top">
-                              <Badge variant={STATUS_VARIANT[m.status]}>{t(STATUS_LABEL[m.status])}</Badge>
-                            </TableCell>
-                            <TableCell className="align-top font-medium">{m.label}</TableCell>
-                            <TableCell className="align-top font-mono text-xs">
-                              {m.core ? `${m.core.table} #${m.core.id}` : '—'}
-                            </TableCell>
-                            <TableCell className="align-top font-mono text-xs">
-                              {m.payment ? `${m.payment.table} #${m.payment.id}` : '—'}
-                            </TableCell>
-                            <TableCell className="align-top">
-                              <table className="text-xs font-mono">
-                                <tbody>
-                                  {m.columns.map((c) => (
-                                    <tr
-                                      key={`${c.core}|${c.payment}`}
-                                      data-equal={c.equal}
-                                      className={c.equal ? 'text-muted-foreground' : 'text-destructive font-semibold'}
-                                    >
-                                      <td className="pr-2 align-top">
-                                        {c.equal ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-                                      </td>
-                                      <td className="pr-2 align-top">
-                                        {c.core} = {show(c.coreValue)}
-                                      </td>
-                                      <td className="pr-2 align-top">↔</td>
-                                      <td className="align-top">
-                                        {c.payment} = {show(c.paymentValue)}
-                                        {c.key ? ` (${t('consistencyCheck.key')})` : ''}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </TableCell>
-                            <TableCell className="align-top">
-                              <Action mapping={m} path={path} />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
+          {ENTITIES.map((e) => (
+            <EntityCard key={e.entity} {...e} report={report} problemsOnly={filter === 'problems'} />
+          ))}
         </>
       )}
     </div>
